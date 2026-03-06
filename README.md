@@ -90,7 +90,7 @@ const Reporte = new mongoose.Schema(
       ],
       required: true,
     },
-    usuarioId: {
+    contratistaId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Contratista",
       required: true,
