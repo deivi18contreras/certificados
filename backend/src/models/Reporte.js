@@ -4,12 +4,15 @@ const ReporteSchema = new mongoose.Schema(
   {
     numPlanilla: {
       type: Number,
+      required: false,
     },
     fechaPago: {
       type: Date,
+      required: false,
     },
     valorPagado: {
       type: Number,
+      required: false,
     },
     mesPagado: {
       type: String,

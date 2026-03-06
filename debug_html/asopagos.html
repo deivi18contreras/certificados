@@ -1,0 +1,311 @@
+<!DOCTYPE html><html><head>
+<link rel="shortcut icon" href="https://pila.enlace-apb.com/favicon.ico" integrity="sha512-XAnIKcdtqN+Pbx2Dz5hWIWVcJRr3rHKFQICxKUbCShCnssqQ8dWQSd2lg1zft6q6WKL26bvR+rlJPUWD8pjOnw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+
+<base href="https://www.enlace-apb.com/interssi/">
+
+<!-- Themes -->
+
+
+
+
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="description" content="Liquidacion de Aportes de Planilla Unica PILA.">
+<meta name="keywords" content="liquidacion,liquidación,Liquidacion,LIQUIDACION,LIQUIDACIóN, 
+	 aportes,APORTES,Aportes,pila,PILA,Pila,planilla,Planilla,PLANILLA,unica, 
+	 UNICA,Unica,única,única,úNICA,enlace,Enlace,ENLACE,aporte,Aporte,APORTE, 
+	 seguridad,SEGURIDAD,Seguridad,social,SOCIAL,Social,pago,PAGOS,Pagos,
+	 Pago,pago,PAGO,eps,EPS,Eps,Salud,SALUD,salud,afp,AFP,Afp,Pension,pension,
+	 PENSION,pensión,Pensión,PENSIóN,ccf,Ccf,CCF,caja,CAJA,Caja,Riesgos,riesgos,
+	 RIESGOS,ARL,arl,Arl,ARP,arp,Arp">
+<meta name="author" content="Jaime Torres">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
+<title>Liquidación y Pago de Aportes de Planilla Pila - Interssi</title>
+
+<link rel="stylesheet" href="static/JQuery/jquery.magnific/magnific-popup.min-1.1.0.css" integrity="sha512-+EoPw+Fiwh6eSeRK7zwIKG2MA8i3rV/DGa3tdttQGgWyatG/SkncT53KHQaS5Jh9MNOT3dmFL0FjTY08And/Cw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+<link rel="stylesheet" href="static/JQuery/jquery.notify/notify-metro.min-0.4.2.css" integrity="sha512-PlmS4kms+fh6ewjUlXryYw0t4gfyUBrab9UB0vqOojV26QKvUT9FqBJTRReoIZ7fO8p0W/U9WFSI4MAdI1Zm+A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+<link rel="stylesheet" href="styles/wvindex.css" integrity="sha512-xC+33m6nbCk2lkzYf3HSfYjYMvBS1gUVd3rK37bMBDyWw0ujGPz/NAtCzZNeocVCk2r317iSZo/Hg0HTaN5nrg==" crossorigin="anonymous" referrerpolicy="no-referrer">
+<link rel="stylesheet" type="text/css" href="styles/scRegistro.css" integrity="sha512-rmZYhIkKTYziQi75MCqjbHCISbK6A9r1idSzObBQAFLnupmSjmCEw5gzf1FlhycjsLZ1TWUz1NMFR2PEYkvCMg==" crossorigin="anonymous" referrerpolicy="no-referrer">
+<!-- jQuery -->
+<script type="text/javascript" src="static/JQuery/jquery-3.7.1.min.js" integrity="sha512-xQM0H6OnF2/RC9jNelcXyPr5cfh/oMFY8tlPzUhK4+1QMfSUFNroM/uAa3NltWmcIdLmVTdvaa2wUrIvb2mCpw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+		<script type="text/JavaScript" src="scripts/ajax.js" integrity="sha512-LmExKBehuwSYPXPKFW+TmTVyS7ZlSY2L4uJQbsgb2zasEbM3RifAGs9YqkkuZt1SPaIfTSND9ioNWwuI1PbW5g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- jQuery Mag -->
+<script type="text/javascript" src="static/js/pila/index.js" integrity="sha512-InH7cQj2J2GcDqq8PI74j5hqFbxtBPPIMAfEl9CmKW5yPsd+CzzbzYJiTwmt/tbLanfyr7Me271FUkPH/Rd/iA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script type="text/javascript" src="static/js/aes.js" integrity="sha512-mmq8LED6/Ea6Av+JaM+latspakJcR4mWS6nCfDSgrf/M+D/ctyV3qqIitUKSpz0wC2WhKkViiiL+5Fk0MsD0GQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script type="text/javascript" src="static/js/compatibilidad_explorador.js" integrity="sha512-hg2IVIJPEBZHgEtI4evrWZkJIP6m+Gv7UzKceS/aU5jIwoK3eUgLvI5LrLZRioGlXN3CdS3lkrcqCgvVVtYy/A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script type="text/javascript" src="scripts/wvindex.js" integrity="sha512-TiIGmK4JhEp7u0ZMQKqa3mipwufCK17o5iIvlOxEPFWKGY3GfA88IUnJT2Vv8qZYnW4xuufTHeNh5l2o22BoAg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- <script src="scripts/gtm.js" integrity="sha512-8q/GrCVcn6+KzPFAof7Bxlf0go/zfZJ90UFe5ioKB4HMIDp4xqGS0nyvhnqhE4fXyHmueeVVqvin9gWapnP5UA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
+</head>
+<body id="body_plus">
+	<!-- <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P87W3ZH"	class="hidden"></iframe></noscript> -->
+<iframe title="landingForInterssi" src="https://landing.enlace-apb.com/?&amp;codigoOperador=86&amp;codigoOriginador=ASC001&amp;componente=&amp;busqueda=" class="full"></iframe>
+	<div>
+		
+		<!-- _____________ -->
+		<!-- ZONA1: HEADER -->
+		<!-- _____________ -->
+		<div id="cajacookies" class="hidden">
+			<p>
+				<button id="btn_ac" class="pull-right">
+				</button>
+			</p>
+		</div>
+		
+       <!-- ____________ -->
+		<!-- ZONA2: MENU  -->
+		<!-- ____________ -->
+		<div class="grid_12 d-none">
+
+			<div class="grid_3 omega">
+				<div>
+					<form action="javascript:search();" id="searchForm">
+						<input type="hidden" name="csrf" id="csrf" value="false">
+						<input type="hidden" name="csrfPreventionSalt" value="KHjbQrXCPZBnTjv4pQ0j">
+						<div class="outer_menu">
+							<div class="middle">
+								<div class="inner">
+									<div class="search">
+										<span class="fa fa-search"></span> <input placeholder="Búsqueda" id="searchItem">
+											<img alt="search" data-src="static/images/misc/button_search.png">
+									</div>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<!-- ___________________________________________________ -->
+		<!-- THE MENU:END -->
+		<!-- ___________________________________________________ -->
+
+		<!-- _______________________ -->
+		<!-- ZONA3: SLIDER AND AUTH  -->
+		<!-- _______________________ -->
+		<div id="escaleta1">
+			<div class="grid_12">
+				<!-- AUTH -->
+				<div class="grid_5 omega">
+				<div id="auth">
+			
+					<form id="auth-form" accept-charset="utf-8" action="autenticar.plus" method="POST">
+							<input type="hidden" name="csrf" id="csrf2" value="false">
+							<input id="csrfPreventionSalt" type="hidden" name="csrfPreventionSalt" value="KHjbQrXCPZBnTjv4pQ0j">
+							<div class="alpha omega">
+								<label>Regístrate y accede para realizar tus pagos a Seguridad Social en Línea</label>
+							
+							</div>
+							
+
+							<div>
+
+								<div class="auth-parent-field">
+									<div class="auth">
+										<span class="fa fa-user"></span>
+										<input id="username2" name="username2" placeholder="Usuario" type="text" value="">
+									</div>
+								</div>
+								<input id="username" name="username" type="hidden" value="">	
+								<input id="password" name="password" autocomplete="off" type="hidden" value="">		
+									
+								<div class="auth-parent-field">
+									<div class="auth">
+										<span class="fa fa-key"></span>
+										<input id="password2" name="password2" placeholder="Clave" type="password" value="" autocomplete="off">
+									</div>
+								</div>
+							</div>
+
+							<div class="captcha-parent">
+								<div class="captcha-child">
+									<table aria-describedby="principal captcha">
+										<tbody><tr>
+											<td></td>
+											<td>
+												<!-- IMAGES -->
+											<div class="outer_captcha">
+												<div>
+													<div class="inner">
+
+														<div>
+															<img data-src="static/images/login/triangle.png" alt="arrow">
+														</div>
+
+													</div>
+												</div>
+											</div>
+												<div id="div_image-recaptcha">
+													<img id="image-recaptcha" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAC4AAAAgCAMAAABabbp1AAAAkFBMVEUAAAAeecIhhbs6mdg5mNc3l9UzktIxkNA5mdgsh8o5l9cvj8w4l9Y2lNU1ldQ5mdg6mdg4l9c3l9c5mdg5mdg5mNg5mNg5mNY4mNc5mdg5mNc4l9Y1lNIxk9I5mdg6mNg5mNY6mdg3l9c3l9U5mdg5mdg5mdg5mdg5mdg4mNc5mdg4l9U5mdg6mdg6mdg6mdj+Jc5aAAAAL3RSTlMABQj6dTUYFLwLaQ9ULyf28l1Hn5eShG5Xi3taIB3fpWPrTULkyKrBtH+uPNnWzpclKFAAAAIXSURBVDjL7ZNnjusgFIUBG4MLLtgU95Y4cRr7393DkeZl8sPJBuYIJJC+W3R1D/jTF8FmcsuiEFXN/K8wYqo/dmmSpIfHRXIfQIz2aa/uO8f8aKQuziTZpRt1TIxxDo/TyZbYXsvj7O3mrm7GJPe+qjmPVHEcjY3YxVFwtw2chxY8RXi/FaB7OD46Zszxq5h7+IDDYjTJLxpO5647dMsO3tjGT9PrH+JI13XNd6afjcapyFu9MIQA2eP76HmJDxGECNgDRGLu01sCfiki6A5EXc5ldaKu7AsczFHg6RWAs2MuW+ckEuXMqhWTyMUlyoum0jqYa+XRVszulLlx2QNwMqaILd6ui+ip6CXXA2r9fImrKQquUUBo2LbSXSuWlyE4GiM2vClvnXoUMrjqAaC4zJnMRd08cUDKUlQ4V3jLnrMte9Uvq7icAxYFraoXqsuAed4TH/CaKRmdigz0jqFXi/sxYyyeeUy0qAs5uCqfELB4SHm+9S4GmUmwpuaQwf9DhACyQfO6jXnGIAjZFWmdxXOM6ytrI8Dt3Iv4bYm8BnkQEs+34X5o6xIYIt8LESSA2OW9BeEb32AI9rRtFI1+8QiXS9bsBTRLahKaNT9/wovU6YZdx3KaGucu59gLfdLggDrWT8G+wTXdDNHlbpYpcdzeN/nB2XC6jI55KX0oCD4pru5jmjyVpl1+Bd8UYq3cTcPcfsD+ARHkNPM7dsQfAAAAAElFTkSuQmCC" alt="Recaptcha">
+												</div>
+											</td>
+											<td></td>
+											<td>	
+												</td><th id="captchaTh">
+												<div>
+													<div class="inner">
+														<input id="captcha" name="captcha" type="text" value="" maxlength="4">
+													</div>
+												</div>
+												<hr>
+												<div class="outer_captcha">
+													<img id="captcha_img" alt="captcha_img" src="captcha">
+												</div>
+												</th>
+											<td></td>
+											<td>
+											 <input type="hidden" name="" value="">
+												<div id="div_image-button">
+													<input class="image-button" type="image" id="bt-login" src="static/images/login/ingrese.png" alt="Submit" name="button">
+												</div>
+											</td>
+										</tr>
+									</tbody></table>
+								</div>
+							</div>
+
+						</form>
+						<div class="alpha omega">
+							<table aria-describedby="recuperar clave">
+								<tbody><tr>
+									<th>
+										<div>
+											<a href="registrarse.plus">
+												<img class="image-button" alt="Registrese" data-src="static/images/login/asigne.png">
+											</a>
+										</div>
+									</th>
+									<th>
+									</th>
+									<th>
+										<div>
+											<a href="recuperarClave.plus">
+												<img class="image-button" alt="Recuperar Clave" data-src="static/images/login/recupere.png">
+											</a>
+										</div>
+									</th>
+								</tr>
+							</tbody></table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- ________________________ -->
+		<!-- ZONA: MENU Y CONTACTENOS -->
+		<!-- ________________________ -->
+		<div class="grid_12" id="piepagina">
+			<!-- contenido -->
+			<div id="contenido_inferior" class="alpha grid_12 omega">
+
+				<div class="grid_5 omega hidden" id="pqrs">
+					<div id="contact-area">
+						<form id="contact-form" action="contactenos.plus" method="POST">
+							<input type="hidden" name="csrf" id="csrf3" value="false">
+							<input type="hidden" name="csrfPreventionSalt" value="KHjbQrXCPZBnTjv4pQ0j">
+							<input id="caaptcha" name="caaptcha" type="hidden" value="">
+							<table>
+								<tbody><tr>
+									<td><label class="textoContactenos">Tipo documento:</label></td>
+									<td><select id="tipoID" name="tipoID" class="textoLista">
+											<option class="textoLista" value="CD">Carné Diplomático</option>
+											<option class="textoLista" value="CC">Cédula de Ciudadanía</option>
+											<option class="textoLista" value="CE">Cédula de Extranjería</option>
+											<option class="textoLista" value="NI">NIT</option>
+											<option class="textoLista" value="PA">Pasaporte</option>
+											<option class="textoLista" value="PE">Permiso Especial</option>
+											<option class="textoLista" value="SC">Salvo Conducto de Permanencia</option>
+											<option class="textoLista" value="TI">Tarjeta de Identidad</option>
+											<option class="textoLista" value="PT">Permiso por Protección Temporal</option>
+										</select></td>
+								</tr>
+								<tr>
+									<td><label class="textoContactenos">Número:</label></td>
+									<td><input id="numeroID" name="numeroID" class="input_contact" type="text" value=""></td>
+								</tr>
+								<tr>
+									<td><label class="textoContactenos">Solicitud</label></td>
+									<td><select id="tipoContacto" name="tipoContacto" class="textoLista">
+											<option class="textoLista" value="P">Petición</option>
+											<option class="textoLista" value="Q">Queja</option>
+											<option class="textoLista" value="R">Reclamo</option>
+											<option class="textoLista" value="F">Felicitación</option>
+										</select></td>
+								</tr>
+								<tr>
+									<td><label class="textoContactenos">Nombre:</label></td>
+									<td><input id="nombre" name="nombre" class="input_contact" type="text" value=""></td>
+								</tr>
+								<tr>
+									<td><label class="textoContactenos">Teléfono:</label></td>
+									<td><input id="telefono" name="telefono" class="input_contact" type="text" value=""></td>
+								</tr>
+								<tr>
+									<td><label class="textoContactenos">Email:</label></td>
+									<td><input id="email" name="email" class="input_contact" type="text" value=""></td>
+								</tr>
+								<tr>
+									<td><label class="textoContactenos">Mensaje:</label></td>
+									<td><textarea id="mensaje" name="mensaje" rows="10" cols="10"></textarea></td>
+								</tr>
+								<tr>
+									<td>
+										<div class="inner">
+											<div>
+											<label class="textoContactenos">Captcha:</label>
+											</div>
+
+										</div>
+									</td>
+									<td>
+										<div class="inner">
+											<input id="captcha" name="captcha" type="text" class="input_contact" value="" maxlength="4">
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div id="div_image-recaptcha">
+											<img id="image-recaptcha_cont" src="static/images/login/refresh.png" alt="Recaptcha">
+										</div>
+									</td>								
+									<td>
+										<hr>
+										<div class="outer_captcha">
+											<img id="captcha_img_cont" src="captcha">
+										</div>
+									</td>
+								</tr>
+								
+								<tr>
+								   <td></td>
+									<td>
+										<div>
+											<button type="submit" class="submit-button">Enviar</button>
+										</div>
+									</td>
+								</tr>
+							</tbody></table>
+						</form>
+							<br>
+							<br>
+					
+						<div></div>
+					</div>
+
+				</div>
+			</div>
+
+		</div>
+	</div>
+	<div class="hidden" id="j_opt" data-opt=""></div>
+	<div class="hidden" id="j_opt_b" data-opt-b="https://pila.enlace-apb.com"></div>
+
+<script type="application/ld+json">
+[{"@context":"https://schema.org","@type":"FAQPage","name":"Preguntas frecuente PILA AsoPagos S.A","mainEntity":[{"@type":"Question","name":"Cuando se hace el pago de los aportes y el banco debita de mi cuenta el dinero, pero en el sistema no se ve reflejado el pago, Ã‚Â¿QuÃƒÂ© debo hacer?","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=preguntasFrecuentes&busqueda=Debe comunicarse con el banco para que e","acceptedAnswer":{"@type":"Answer","text":"Debe comunicarse con el banco ..."}},{"@type":"Question","name":"CÃƒÂ³mo debo ingresar la planilla de un empleado que tiene 15 d&iacute;as como aprendiz y 15 d&iacute;as como dependiente?","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=preguntasFrecuentes&busqueda=Inicialmente se debe registrar la noveda","acceptedAnswer":{"@type":"Answer","text":"Inicialmente se debe registrar..."}},{"@type":"Question","name":"Si una persona gana mÃƒÂ¡s de 25 SMLMV y tiene adicionalmente contratos con varias empresas, cÃƒÂ³mo debo realizar el pago de sus aportes?","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=preguntasFrecuentes&busqueda=El aporte deberÃƒÂ¡ realizarse teniendo en ","acceptedAnswer":{"@type":"Answer","text":"El aporte deberÃƒÂ¡ realizarse te..."}},{"@type":"Question","name":"Ã‚Â¿Al ingresar una novedad de Vac (vacaciones) o LR (licencia remunerada) o SLN (suspensiÃƒÂ³n de contrato, licencia no remunerada y comisiÃƒÂ³n de servicios) Ã‚Â¿CuÃƒÂ¡l es el IBC (ingreso base de cotizaciÃƒÂ³n) que debo reportar para realizar la liquidaciÃƒÂ³n de la planilla?","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=preguntasFrecuentes&busqueda=Durante el periodo de vacaciones o licen","acceptedAnswer":{"@type":"Answer","text":"Durante el periodo de vacacion..."}},{"@type":"Question","name":"Ã‚Â¿Al presentarse una novedad de VAC (vacaciones) o LR (licencia remunerada) y a su vez una VST (variaciÃƒÂ³n transitoria de salario) Ã‚Â¿Que IBC (ingreso base de cotizaciÃƒÂ³n) debo tener en cuenta para calcular los parafiscales?","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=preguntasFrecuentes&busqueda=Debe tomar el salario bÃƒÂ¡sico mas la vari","acceptedAnswer":{"@type":"Answer","text":"Debe tomar el salario bÃƒÂ¡sico m..."}},{"@type":"Question","name":"Ã‚Â¿Cuando el cotizante pertenece a un rÃƒÂ©gimen especial o de excepciÃƒÂ³n, quÃƒÂ© debo seleccionar en el campo EPS?","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=preguntasFrecuentes&busqueda=En ÃƒÂ©ste caso los aportes deben ser direc","acceptedAnswer":{"@type":"Answer","text":"En ÃƒÂ©ste caso los aportes deben..."}},{"@type":"Question","name":"Ã‚Â¿CÃƒÂ³mo debo realizar los aportes de un empleado que labora menos de 30 d&iacute;as en el mes?","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=preguntasFrecuentes&busqueda=Tenga en cuenta que el usuario debe esta","acceptedAnswer":{"@type":"Answer","text":"Tenga en cuenta que el usuario..."}},{"@type":"Question","name":"Ã‚Â¿CÃƒÂ³mo debo reportar en PILA los aportes de un aprendiz?","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=preguntasFrecuentes&busqueda=Para el caso de los aprendices del SENA ","acceptedAnswer":{"@type":"Answer","text":"Para el caso de los aprendices..."}},{"@type":"Question","name":"Ã‚Â¿CÃƒÂ³mo ingreso una novedad de licencia no remunerada?","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=preguntasFrecuentes&busqueda=La licencia no remunerada se ingresa com","acceptedAnswer":{"@type":"Answer","text":"La licencia no remunerada se i..."}},{"@type":"Question","name":"Ã‚Â¿Debo pagar algÃƒÂºn valor por utilizar la plataforma de Asopagos S.A.?","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=preguntasFrecuentes&busqueda=La inscripciÃƒÂ³n y el pago de los aportes ","acceptedAnswer":{"@type":"Answer","text":"La inscripciÃƒÂ³n y el pago de lo..."}},{"@type":"Question","name":"Ã‚Â¿Mi banco dice estar fuera de lÃƒÂ­nea, quÃƒÂ© puedo hacer para pagar mis aportes?","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=preguntasFrecuentes&busqueda=Esto sucede porque el banco tiene proble","acceptedAnswer":{"@type":"Answer","text":"Esto sucede porque el banco ti..."}},{"@type":"Question","name":"Ã‚Â¿Para los aportes parafiscales, QuÃƒÂ© IBC debo considerar para realizar las respectivas liquidaciones?","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=preguntasFrecuentes&busqueda=Los aportes parafiscales se calculan y p","acceptedAnswer":{"@type":"Answer","text":"Los aportes parafiscales se ca..."}},{"@type":"Question","name":"Ã‚Â¿Puedo corregir una planilla pagada de un mes actual si debÃƒÂ­a pagar un mes vencido?","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=preguntasFrecuentes&busqueda=No. En ÃƒÂ©ste caso debe realizar el pago l","acceptedAnswer":{"@type":"Answer","text":"No. En ÃƒÂ©ste caso debe realizar..."}},{"@type":"Question","name":"Ã‚Â¿Puedo eliminar empleados ingresados en el sistema, que por error quedaron incluidos en una de mis planillas?","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=preguntasFrecuentes&busqueda=Puede eliminar un empleado del sistema, ","acceptedAnswer":{"@type":"Answer","text":"Puede eliminar un empleado del..."}},{"@type":"Question","name":"Ã‚Â¿Puedo generar planilla a un trabajador para sÃƒÂ³lo realizar aportes a salud, ARP y parafiscales, sin incluir pensiÃƒÂ³n?","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=preguntasFrecuentes&busqueda=No. Excepto que la Administradora de Fon","acceptedAnswer":{"@type":"Answer","text":"No. Excepto que la Administrad..."}},{"@type":"Question","name":"Ã‚Â¿Puedo realizar un descuento por incapacidad por medio de la Planilla Integrada de LiquidaciÃƒÂ³n de Aportes?","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=preguntasFrecuentes&busqueda=No. De acuerdo con lo contemplado en el ","acceptedAnswer":{"@type":"Answer","text":"No. De acuerdo con lo contempl..."}},{"@type":"Question","name":"Ã‚Â¿QuÃƒÂ© es el Valor No Retenido por Aportes Voluntarios?","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=preguntasFrecuentes&busqueda=Es la diferencia entre el valor que se h","acceptedAnswer":{"@type":"Answer","text":"Es la diferencia entre el valo..."}},{"@type":"Question","name":"Ã‚Â¿QuÃƒÂ© es una pensiÃƒÂ³n Compartida?","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=preguntasFrecuentes&busqueda=Es una pensiÃƒÂ³n que estÃƒÂ¡ a cargo del empl","acceptedAnswer":{"@type":"Answer","text":"Es una pensiÃƒÂ³n que estÃƒÂ¡ a carg..."}},{"@type":"Question","name":"Ã‚Â¿QuÃƒÂ© es una pensiÃƒÂ³n Familiar?","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=preguntasFrecuentes&busqueda=La Ley 1548 del 1 de octubre de 2012 cre","acceptedAnswer":{"@type":"Answer","text":"La Ley 1548 del 1 de octubre d..."}},{"@type":"Question","name":"Ã‚Â¿Si me registro en Asopagos S.A., me obligan a pagar por este medio?","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=preguntasFrecuentes&busqueda=La inscripciÃƒÂ³n es gratuita y voluntaria.","acceptedAnswer":{"@type":"Answer","text":"La inscripciÃƒÂ³n es gratuita y v..."}},{"@type":"Question","name":"Ã‚Â¿Si mi empleado devenga menos de un salario mÃƒÂ­nimo mensual vigente, puedo realizar la liquidaciÃƒÂ³n de los aportes a salud con ese salario?","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=preguntasFrecuentes&busqueda=No. El tope mÃƒÂ­nimo para el cÃƒÂ¡lculo de ap","acceptedAnswer":{"@type":"Answer","text":"No. El tope mÃƒÂ­nimo para el col..."}},{"@type":"Question","name":"Ã‚Â¿Si realizo el pago de mis aportes a trav&eacute;s del portal de mi banco y ÃƒÂ©ste me hace el dÃƒÂ©bito de mi cuenta, puedo estar seguro que la transacciÃƒÂ³n fue efectiva?","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=preguntasFrecuentes&busqueda=Debe confirmar en el sistema bancario si","acceptedAnswer":{"@type":"Answer","text":"Debe confirmar en el sistema b..."}},{"@type":"Question","name":"Ã‚Â¿Si una persona presenta novedad de retiro (RET) y luego una novedad de ingreso (ING), Ã‚Â¿CÃƒÂ³mo debo reportar ante la EPS (Entidad Promotora de Salud) la novedad generada?","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=preguntasFrecuentes&busqueda=Debe reportar la novedad de Retiro en la","acceptedAnswer":{"@type":"Answer","text":"Debe reportar la novedad de Re..."}},{"@type":"Question","name":"Ã‚Â¿Si ya realicÃƒÂ© el pago de la planilla, puedo reportar una novedad de incapacidad que no se incluyÃƒÂ³ dentro de esta?","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=preguntasFrecuentes&busqueda=SÃƒÂ­, siempre y cuando se reporte en mes a","acceptedAnswer":{"@type":"Answer","text":"SÃƒÂ­, siempre y cuando se report..."}}]},{"@context":"https://schema.org","@type":"ItemList","name":"Portafolio comercial asopagos","description":"AsoPagos S.A, un operador de informaci&oacute;n especializado en la liquidaciÃƒÂ³n y el pago de los Aportes de Seguridad Social, Parafiscales y CesantÃƒÂ­as, con respaldo tecnolÃƒÂ³gico y operativo de Jaime Torres C. y Cia S.A.","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=portafolio&busqueda=","itemListElement":[{"@type":"Service","name":"Liquidar planilla pila","description":""},{"@type":"Service","name":"Liquidar cesantias","description":""},{"@type":"Service","name":"Liquidar UGPP","description":""},{"@type":"Service","name":"Liquidar sentencias judiciales","description":""},{"@type":"Service","name":"Soporte continuo","description":""},{"@type":"Service","name":"Capacitaciones","description":"UGPP, DIAN, normatividad Pila y plataforma, reforma laboral, reducciÃƒÂ³n de jornada, procesos disciplinarios laborales, prevenciÃƒÂ³n del acoso laboral, cumplimiento general de la normatividad laboral, aspectos generales de nÃƒÂ³mina, liderazgo, trabajo en equipo, servicio al cliente, competencias blandas."}]},{"@context":"https://schema.org","@type":"ItemList","name":"Utilitarios","description":"Herramientas y ayudas especializadas para nuestros usuarios","itemListElement":[{"applicationCategory":"SoftwareApplication","name":"ZEN","description":"Es un complemento en Excel que transforma la presentaciÃƒÂ³n del archivo TXT a la versiÃƒÂ³n en Excel, donde puedes validar, corregir y generar planilla desde una hoja de cÃƒÂ¡lculo","operatingSystem":"Microsoft Windows Office","url":"https://www.enlace-apb.com","downloadUrl":"https://www.enlace-apb.com/CorreccionPlanillaWeb/zen/ZEN.exe","softwareVersion":"@latest"},{"applicationCategory":"SoftwareApplication","name":"Corrector en linea","description":"Es una herramienta que te permite visualizar de una manera sencilla el archivo TXT en la plataforma","operatingSystem":"Plataformas web","url":"https://www.enlace-apb.com","softwareVersion":"@latest"},{"applicationCategory":"SoftwareApplication","name":"Clonacion de planillas","description":"Es una herramienta que te permite clonar la planilla pagada, adicionar novedades y generar la nueva planilla de una forma sencilla y rÃƒÂ¡pida","operatingSystem":"Plataformas web","url":"https://www.enlace-apb.com","softwareVersion":"@latest"},{"applicationCategory":"SoftwareApplication","name":"Consultas y reportes","description":"En este mÃƒÂ³dulo encontrarÃƒÂ s dos carpetas las cuales le facilitarÃƒÂ¡n la consulta de reportes e informaci&oacute;n general que serÃƒÂ¡ de gran ayuda en la liquidaciÃƒÂ³n de aportes de la Seguridad Social","operatingSystem":"Plataformas web","url":"https://www.enlace-apb.com","softwareVersion":"@latest"},{"applicationCategory":"SoftwareApplication","name":"APP AsoPagos","description":"Los empleados podrÃƒÂ¡n ingresar a la APP Asopagos y descargar los certificados de las planillas pagadas por los empleadores","operatingSystem":"Android","url":"https://www.enlace-apb.com","softwareVersion":"@latest"},{"applicationCategory":"SoftwareApplication","name":"APP AsoPagos","description":"Los empleados podrÃƒÂ¡n ingresar a la APP Asopagos y descargar los certificados de las planillas pagadas por los empleadores","operatingSystem":"IOS","url":"https://www.enlace-apb.com","softwareVersion":"@latest"},{"applicationCategory":"SoftwareApplication","name":"Multiusuario","description":"Si el aportante maneja diferentes razones sociales o es un grupo empresarial tenemos la opciÃƒÂ³n de crearte un usuario maestro para agruparlas","operatingSystem":"Plataformas web","url":"https://www.enlace-apb.com","softwareVersion":"@latest"},{"applicationCategory":"SoftwareApplication","name":"Calculadora de aportes","description":"Simula tus aportes a Seguridad Social y Parafiscales","operatingSystem":"Plataformas web","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=calculadora&busqueda=","softwareVersion":"@latest"},{"applicationCategory":"SoftwareApplication","name":"Historico salario mÃƒÂ­nimo","description":"Consulta el salario minimo historico en Colombia","operatingSystem":"Plataformas web","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=smlv&busqueda=","softwareVersion":"@latest"},{"applicationCategory":"SoftwareApplication","name":"Puntos de pago y oficinas","description":"Consulta los puntos de pago y oficinas a nivel nacional","operatingSystem":"Plataformas web","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=georeferencia&busqueda=","softwareVersion":"@latest"},{"applicationCategory":"SoftwareApplication","name":"Fechas limite de pago","description":"Consulta las fechas limite de pago","operatingSystem":"Plataformas web","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=fechasVencimiento&busqueda=","softwareVersion":"@latest"},{"applicationCategory":"SoftwareApplication","name":"UPC","description":"Consulta los valores UPC de forma interactiva","operatingSystem":"Plataformas web","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=upc&busqueda=","softwareVersion":"@latest"}]},{"@context":"https://schema.org","@type":"ItemList","name":"Tutoriales","description":"Video tutoriales paso a paso","itemListElement":[{"@type":"Tutoriales","name":"Canales y ventajas","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=Canales y ventajas"},{"@type":"Tutoriales","name":"DÃƒÂ©bito automÃƒÂ¡tico","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=DÃƒÂ©bito automÃƒÂ¡tico"},{"@type":"Tutoriales","name":"Pago Cenit","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=Pago Cenit"},{"@type":"Tutoriales","name":"APP","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=APP"},{"@type":"Tutoriales","name":"ZEN","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=ZEN"},{"@type":"Tutoriales","name":"Manejo de Novedades","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=Manejo de Novedades"},{"@type":"Tutoriales","name":"Manejo Archivo plano","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=Manejo Archivo plano"},{"@type":"Tutoriales","name":"Cargue de planillas","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=Cargue de planillas"},{"@type":"Tutoriales","name":"Independientes","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=Independientes"},{"@type":"Tutoriales","name":"Reportes","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=Reportes"},{"@type":"Tutoriales","name":"Novedades aporte voluntario","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=Novedades aporte voluntario"},{"@type":"Tutoriales","name":"Novedades incapacidad general","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=Novedades incapacidad general"},{"@type":"Tutoriales","name":"Novedades retiro","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=Novedades retiro"},{"@type":"Tutoriales","name":"Novedades licencia de maternidad o paternidad","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=Novedades licencia de maternid"},{"@type":"Tutoriales","name":"Novedades ingreso","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=Novedades ingreso"},{"@type":"Tutoriales","name":"Novedad suspensiÃƒÂ³n temporal del contrato","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=Novedad suspensiÃƒÂ³n temporal de"},{"@type":"Tutoriales","name":"Novedades riesgos laborales","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=Novedades riesgos laborales"},{"@type":"Tutoriales","name":"Novedades variaciÃƒÂ³n permanente de salario","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=Novedades variaciÃƒÂ³n permanente"},{"@type":"Tutoriales","name":"Novedades variaciÃƒÂ³n transitoria de salario","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=Novedades variaciÃƒÂ³n transitori"},{"@type":"Tutoriales","name":"GeneraciÃƒÂ³n Planilla","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=GeneraciÃƒÂ³n Planilla"},{"@type":"Tutoriales","name":"Corrector en lÃƒÂ­nea","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=Corrector en lÃƒÂ­nea"},{"@type":"Tutoriales","name":"Fraccionamiento de planilla","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=Fraccionamiento de planilla"},{"@type":"Tutoriales","name":"Modificador","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=Modificador"},{"@type":"Tutoriales","name":"Planilla N-Parte 1","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=Planilla N-Parte 1"},{"@type":"Tutoriales","name":"Planilla N-Parte 2","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=Planilla N-Parte 2"},{"@type":"Tutoriales","name":"Amigo Taxista","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=Amigo Taxista"},{"@type":"Tutoriales","name":"CesantÃƒÂ­as","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=CesantÃƒÂ­as"},{"@type":"Tutoriales","name":"Novedad de Licencia de Paternidad Flexible","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=Novedad de Licencia de Paterni"},{"@type":"Tutoriales","name":"Cambios en la ValidaciÃƒÂ³n de Actividad EconÃƒÂ³mica","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=tutoriales&busqueda=Cambios en la ValidaciÃƒÂ³n de Ac"}]},{"@context":"https://schema.org","@type":"DataCatalog","name":"CatÃƒÂ¡logo de Bases de Datos normativos","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=normatividad&busqueda=","description":"Consolidado normativo de planilla unica para empresas e independientes en Colombia, 367 registros","creator":"AsoPagos S.A, Jaime Torres C. y Cia S.A.","license":"Libre DistribuciÃƒÂ³n PÃƒÂºblica"},{"@context":"https://schema.org","@type":"DataCatalog","name":"Puntos de pago y oficinas","description":"Consulta los puntos de pago y recaudo PuntodePago, puntoRed, Jumbo, Metro, Spid, Cencosud, grupo Exito y oficinas para cajas de compensacion aliadas Asopagos a nivel nacional","items":"9239 registros","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=georeferencia&busqueda="},{"@context":"https://schema.org","@type":"ItemList","name":"Canales de Contacto AsoPagos","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=canalesContacto&busqueda=","itemListElement":[{"@type":"ContactPoint","telephone":"6014875111","contactType":"customer service","areaServed":{"@type":"AdministrativeArea","name":"CO"},"availableLanguage":["Spanish"],"description":"Ponte en contacto con nosotros por telÃƒÂ©fono para obtener asistencia al cliente."}]},{"@context":"https://schema.org","@type":"ItemList","name":"Redes Sociales AsoPagos","url":"https://www.enlace-apb.com/interssi/.plus?&codigoOperador=86&codigoOriginador=ASC001&componente=redeSociales&busqueda=","items":"9 registros"}]
+</script>
+</body></html>
