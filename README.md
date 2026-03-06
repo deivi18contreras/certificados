@@ -46,7 +46,7 @@ const Contratista = new mongoose.Schema(
     tipoDoc: { type: String, required: true },
     numeroDoc: { type: Number, required: true },
     eps: { type: String, required: true },
-    expCedula: { type: Date, required: true },
+    expCedula: { type: Date },
   },
   { timestamps: true },
 );
@@ -80,8 +80,9 @@ import mongoose from "mongoose";
 
 const Reporte = new mongoose.Schema(
   {
-    numPlanilla: { type: Number, required: true },
-    fechaPago: { type: Date, required: true },
+    numPlanilla: { type: Number },
+    fechaPago: { type: Date },
+    valorPagado: { type: Number },
     mesPagado: {
       type: String,
       enum: [
