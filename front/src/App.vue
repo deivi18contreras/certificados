@@ -1,105 +1,62 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { useRouter } from 'vue-router'
+
+const authStore = useAuthStore()
+const router = useRouter()
+
+const handleLogout = () => {
+  authStore.logout()
+  router.push({ name: 'home' })
+}
 </script>
 
 <template>
-  <header class="app-header">
-    <div class="header-container">
-      <div class="logo">
-        <img alt="SENA Logo" class="logo-img" src="@/assets/logo.svg" width="30" height="30" />
-        <span class="logo-text">CertiSENA</span>
-      </div>
+  <q-layout view="hHh Lpr lFf" class="bg-grey-1">
+    <q-header elevated class="bg-primary text-white">
+      <q-toolbar class="q-px-lg" style="height: 64px">
+        <q-btn flat round dense icon="menu" class="q-mr-sm sm-only" />
+        
+        <q-avatar size="40px">
+          <img src="@/assets/logo.svg" />
+        </q-avatar>
 
-      <nav class="nav-links">
-        <RouterLink to="/" class="nav-item">Inicio</RouterLink>
-        <RouterLink to="/reportes" class="nav-item">Reportes</RouterLink>
-        <RouterLink to="/register-reporte" class="nav-item">Nuevo Reporte</RouterLink>
-        <RouterLink to="/contratistas" class="nav-item">Contratistas</RouterLink>
-        <RouterLink to="/supervisores" class="nav-item">Supervisores</RouterLink>
-        <RouterLink to="/certificates" class="nav-item">Certificados</RouterLink>
-      </nav>
-    </div>
-  </header>
+        <q-toolbar-title class="text-weight-bold">
+          CertiSENA <span class="text-subtitle2 text-weight-light q-ml-sm gt-xs">Automatización de Planillas</span>
+        </q-toolbar-title>
 
-  <main class="app-main">
-    <RouterView />
-  </main>
+        <q-space />
+
+        <div class="q-gutter-sm row items-center no-wrap">
+          <q-btn flat label="Inicio" :to="{ name: 'home' }" />
+          
+          <template v-if="authStore.isAuthenticated">
+            <q-btn flat label="Dashboard" :to="{ name: 'dashboard' }" />
+            <q-btn flat label="Permisos Drive" :to="{ name: 'permisos' }" />
+            <q-separator vertical inset dark class="q-mx-sm" />
+            <div class="gt-xs text-weight-medium">{{ authStore.user?.nombre }}</div>
+            <q-btn round flat icon="logout" @click="handleLogout">
+              <q-tooltip>Cerrar Sesión</q-tooltip>
+            </q-btn>
+          </template>
+          
+          <q-btn v-else flat label="Supervisores" :to="{ name: 'login' }" icon="login" />
+        </div>
+      </q-toolbar>
+    </q-header>
+
+    <q-page-container>
+      <router-view />
+    </q-page-container>
+
+    <q-footer class="bg-white text-grey-8 q-pa-md text-center border-top">
+      <div>© 2026 SENA - Sistema de Automatización de Planillas</div>
+    </q-footer>
+  </q-layout>
 </template>
 
 <style>
-.app-header {
-  background-color: white;
-  border-bottom: 1px solid #dadce0;
-  height: 64px;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  box-shadow: 0 1px 2px 0 rgba(60,64,67,0.1), 0 2px 6px 2px rgba(60,64,67,0.05);
-}
-
-.header-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 2rem;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-}
-
-.logo-text {
-  font-size: 1.4rem;
-  font-weight: 500;
-  color: #3c4043;
-}
-
-.nav-links {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.nav-item {
-  padding: 0.6rem 1rem;
-  border-radius: 4px;
-  color: #5f6368;
-  font-weight: 500;
-  font-size: 0.95rem;
-  transition: all 0.2s;
-}
-
-.nav-item:hover {
-  background-color: #f1f3f4;
-  color: #202124;
-}
-
-.router-link-active {
-  color: var(--primary-color);
-  background-color: rgba(26,115,232,0.1);
-}
-
-.app-main {
-  min-height: calc(100vh - 64px);
-}
-
-@media (max-width: 992px) {
-  .header-container {
-    padding: 0 1rem;
-    flex-direction: column;
-    height: auto;
-    padding-bottom: 0.5rem;
-  }
-  .app-header {
-    height: auto;
-  }
-  .nav-links {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
+.border-top {
+  border-top: 1px solid #e0e0e0;
 }
 </style>
