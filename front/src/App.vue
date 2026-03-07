@@ -12,51 +12,98 @@ const handleLogout = () => {
 </script>
 
 <template>
-  <q-layout view="hHh Lpr lFf" class="bg-grey-1">
-    <q-header elevated class="bg-primary text-white">
-      <q-toolbar class="q-px-lg" style="height: 64px">
-        <q-btn flat round dense icon="menu" class="q-mr-sm sm-only" />
-        
-        <q-avatar size="40px">
-          <img src="@/assets/logo.svg" />
-        </q-avatar>
-
-        <q-toolbar-title class="text-weight-bold">
-          CertiSENA <span class="text-subtitle2 text-weight-light q-ml-sm gt-xs">Automatización de Planillas</span>
-        </q-toolbar-title>
-
-        <q-space />
-
-        <div class="q-gutter-sm row items-center no-wrap">
-          <q-btn flat label="Inicio" :to="{ name: 'home' }" />
-          
-          <template v-if="authStore.isAuthenticated">
-            <q-btn flat label="Dashboard" :to="{ name: 'dashboard' }" />
-            <q-btn flat label="Permisos Drive" :to="{ name: 'permisos' }" />
-            <q-separator vertical inset dark class="q-mx-sm" />
-            <div class="gt-xs text-weight-medium">{{ authStore.user?.nombre }}</div>
-            <q-btn round flat icon="logout" @click="handleLogout">
-              <q-tooltip>Cerrar Sesión</q-tooltip>
-            </q-btn>
-          </template>
-          
-          <q-btn v-else flat label="Supervisores" :to="{ name: 'login' }" icon="login" />
+  <div class="layout-container">
+    <nav class="main-navbar">
+      <div class="navbar-brand">
+        <!-- Icono de casita institucional -->
+        <div class="house-icon">
+          <i class="material-icons">home</i>
         </div>
-      </q-toolbar>
-    </q-header>
+        <div class="brand-text">
+          <div class="brand-title">CertiSENA</div>
+        </div>
+      </div>
+      
+      <div class="nav-links">
+        <router-link :to="{ name: 'home' }">Inicio</router-link>
+        
+        <template v-if="authStore.isAuthenticated">
+          <div class="user-control">
+            <button class="logout-btn" @click="handleLogout">
+              <i class="material-icons">logout</i>
+              <span>Cerrar Sesión</span>
+            </button>
+          </div>
+        </template>
+      </div>
+    </nav>
 
-    <q-page-container>
+    <div class="top-accent-bar"></div>
+
+    <main class="main-content">
       <router-view />
-    </q-page-container>
+    </main>
 
-    <q-footer class="bg-white text-grey-8 q-pa-md text-center border-top">
-      <div>© 2026 SENA - Sistema de Automatización de Planillas</div>
-    </q-footer>
-  </q-layout>
+    <footer class="main-footer">
+      <div>© 2026 SENA - Servicio Nacional de Aprendizaje</div>
+    </footer>
+  </div>
 </template>
 
-<style>
-.border-top {
-  border-top: 1px solid #e0e0e0;
+<style scoped>
+.main-navbar {
+  background: var(--sena-purple-gradient);
+  color: white;
+  height: 56px; /* Altura más moderada */
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  justify-content: space-between;
+}
+
+.house-icon {
+  background: white;
+  color: var(--sena-purple);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.house-icon i {
+  font-size: 20px;
+}
+
+.brand-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin-left: 10px;
+}
+
+.top-accent-bar {
+  height: 4px;
+  background-color: var(--sena-green);
+  width: 100%;
+}
+
+.logout-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
 }
 </style>

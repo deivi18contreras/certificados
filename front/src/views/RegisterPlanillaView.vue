@@ -26,7 +26,7 @@ const form = ref({
   tipoDoc: 'CC',
   numeroDoc: '',
   eps: '',
-  expCedula: '', // Ahora se mostrará condicionalmente en detalles
+  expCedula: '', 
   
   // Datos Reporte
   numPlanilla: '',
@@ -55,8 +55,6 @@ const loadSupervisors = async () => {
 const handleSubmit = async () => {
   loading.value = true
   try {
-    // 1. Registrar/Verificar contratista (Lógica simplificada: siempre intenta registrar o buscar)
-    // En un flujo real, buscaríamos primero por numeroDoc.
     const resContratista = await registerContratista({
       nombres: form.value.nombres,
       apellidos: form.value.apellidos,
@@ -65,15 +63,12 @@ const handleSubmit = async () => {
       eps: form.value.eps,
       expCedula: form.value.expCedula
     }).catch(err => {
-        // Si ya existe, asumimos que podemos continuar con ese ID (necesitaría ajuste en backend para devolver el existente en el error o un endpoint de búsqueda)
-        // Por ahora, si falla el registro por duplicado, intentaremos manejarlo.
         return err.response?.data?.data || null 
     })
 
     const contratistaId = resContratista?.data?._id || resContratista?._id
 
     if (!contratistaId) {
-       // Si no tenemos ID, buscamos en la lista existente (fallback temporal)
        const allC = await getContratistas()
        const match = allC.data.find(c => c.numeroDoc === form.value.numeroDoc)
        if (match) form.value.contratistaId = match._id
@@ -82,12 +77,11 @@ const handleSubmit = async () => {
         form.value.contratistaId = contratistaId
     }
 
-    // 2. Registrar Reporte
     const resReporte = await registerReporte({
-      numPlanilla: isCompensar.value ? form.value.numPlanilla : 0, // Enviar 0 si no aplica para pasar validación
+      numPlanilla: isCompensar.value ? form.value.numPlanilla : 0, 
       mesPagado: form.value.mesPagado,
       valorPagado: isCompensar.value ? form.value.valorPagado : 0,
-      fechaPago: isCompensar.value ? form.value.fechaPago : `${form.value.anio}-01-01`, // Fecha construida para el año
+      fechaPago: isCompensar.value ? form.value.fechaPago : `${form.value.anio}-01-01`, 
       contratistaId: form.value.contratistaId,
       supervisorId: form.value.supervisorId.value,
       entidadPagadora: form.value.entidadPagadora.toLowerCase() === 'aportes en linea' ? 'aportesEnLinea' : form.value.entidadPagadora.toLowerCase()
@@ -110,78 +104,136 @@ onMounted(() => {
 </script>
 
 <template>
-  <q-page class="q-pa-xl bg-grey-1 flex flex-center">
-    <q-card style="max-width: 800px; width: 100%; border-radius: 16px" flat bordered>
-      <q-card-section class="bg-primary text-white q-pa-lg">
-        <div class="text-h5 text-weight-bold">Registro de Planilla PILA</div>
-        <div class="text-subtitle2">Complete la información para procesar su certificado automáticamente</div>
-      </q-card-section>
+  <div class="register-view">
+    <div class="card register-card">
+      <div class="register-header">
+        <h2>Registro de Planilla PILA</h2>
+        <p>Complete la información para procesar su certificado automáticamente</p>
+      </div>
 
-      <q-form @submit="handleSubmit" class="q-pa-lg">
-        <div class="text-h6 q-mb-md text-primary">1. Datos Personales</div>
-        <div class="row q-col-gutter-md">
-          <div class="col-12 col-sm-6">
-            <q-input v-model="form.nombres" label="Nombres" outlined dense required />
+      <form @submit.prevent="handleSubmit" class="register-form">
+        <section class="form-section">
+          <h3 class="section-title">1. Datos Personales</h3>
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Nombres</label>
+              <input v-model="form.nombres" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label>Apellidos</label>
+              <input v-model="form.apellidos" class="form-input" required />
+            </div>
           </div>
-          <div class="col-12 col-sm-6">
-            <q-input v-model="form.apellidos" label="Apellidos" outlined dense required />
+          
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Tipo Doc</label>
+              <select v-model="form.tipoDoc" class="form-input">
+                <option v-for="opt in ['CC', 'CE', 'PEP']" :key="opt" :value="opt">{{ opt }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Número de Documento</label>
+              <!-- Cambiado a type="text" para evitar spinners y formateo numérico -->
+              <input v-model="form.numeroDoc" type="text" class="form-input" required placeholder="Ej: 12345678" />
+            </div>
           </div>
-          <div class="col-12 col-sm-4">
-            <q-select v-model="form.tipoDoc" :options="['CC', 'CE', 'PEP']" label="Tipo Doc" outlined dense />
-          </div>
-          <div class="col-12 col-sm-8">
-            <q-input v-model.number="form.numeroDoc" type="number" label="Número de Documento" outlined dense required class="q-no-input-spinner" />
-          </div>
-          <div class="col-12 col-sm-6">
-            <q-select v-model="form.eps" :options="['Sanitas', 'Sura', 'Compensar', 'Salud Total', 'Nueva EPS']" label="EPS" outlined dense required />
-          </div>
-        </div>
 
-        <q-separator class="q-my-lg" />
+          <div class="form-group">
+            <label>EPS</label>
+            <select v-model="form.eps" class="form-input" required>
+              <option value="" disabled selected>Seleccione su EPS</option>
+              <option v-for="opt in ['Sanitas', 'Sura', 'Compensar', 'Salud Total', 'Nueva EPS']" :key="opt" :value="opt">{{ opt }}</option>
+            </select>
+          </div>
+        </section>
 
-        <div class="text-h6 q-mb-md text-primary">2. Detalles de la Planilla</div>
-        <div class="row q-col-gutter-md">
-          <!-- Operador de Pago (Siempre visible) -->
-          <div class="col-12">
-            <q-select v-model="form.entidadPagadora" :options="operators" label="Operador de Pago" outlined dense required />
+        <div class="separator"></div>
+
+        <section class="form-section">
+          <h3 class="section-title">2. Detalles de la Planilla</h3>
+          <div class="form-group">
+            <label>Operador de Pago</label>
+            <select v-model="form.entidadPagadora" class="form-input" required>
+              <option value="" disabled selected>Seleccione un operador</option>
+              <option v-for="opt in operators" :key="opt" :value="opt">{{ opt }}</option>
+            </select>
           </div>
 
-          <!-- Campos condicionales -->
           <template v-if="form.entidadPagadora">
-            <div class="col-12 col-sm-6" v-if="isCompensar">
-              <q-input v-model.number="form.numPlanilla" type="number" label="Número de Planilla" outlined dense required class="q-no-input-spinner" />
-            </div>
-            
-            <div class="col-12 col-sm-6" v-if="isCompensar">
-              <q-input v-model="form.fechaPago" type="date" label="Fecha de Pago" stack-label outlined dense required />
-            </div>
-
-            <div class="col-12 col-sm-6">
-              <q-select v-model="form.mesPagado" :options="months" label="Mes a Reportar" outlined dense required />
-            </div>
-            <div class="col-12 col-sm-6">
-              <q-select v-model="form.anio" :options="years" label="Año a Reportar" outlined dense required />
+            <div class="grid-2" v-if="isCompensar">
+              <div class="form-group">
+                <label>Número de Planilla</label>
+                <!-- Cambiado a type="text" -->
+                <input v-model="form.numPlanilla" type="text" class="form-input" required />
+              </div>
+              <div class="form-group">
+                <label>Fecha de Pago</label>
+                <input v-model="form.fechaPago" type="date" class="form-input" required />
+              </div>
             </div>
 
-            <div class="col-12 col-sm-6" v-if="isCompensar">
-              <q-input v-model.number="form.valorPagado" type="number" label="Valor Pagado" outlined dense prefix="$" class="q-no-input-spinner" />
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Mes a Reportar</label>
+                <select v-model="form.mesPagado" class="form-input" required>
+                  <option v-for="opt in months" :key="opt" :value="opt">{{ opt }}</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Año a Reportar</label>
+                <select v-model="form.anio" class="form-input" required>
+                  <option v-for="opt in years" :key="opt" :value="opt">{{ opt }}</option>
+                </select>
+              </div>
             </div>
 
-            <div class="col-12 col-sm-6" v-if="isAportes">
-              <q-input v-model="form.expCedula" type="date" label="Fecha Expedición Cédula" stack-label outlined dense required />
+            <div class="grid-2">
+              <div class="form-group" v-if="isCompensar">
+                <label>Valor Pagado</label>
+                <div class="input-wrapper">
+                  <span class="prefix">$</span>
+                  <!-- Cambiado a type="text" -->
+                  <input v-model="form.valorPagado" type="text" class="form-input has-prefix" placeholder="0" />
+                </div>
+              </div>
+              <div class="form-group" v-if="isAportes">
+                <label>Fecha Expedición Cédula</label>
+                <input v-model="form.expCedula" type="date" class="form-input" required />
+              </div>
             </div>
 
-            <div class="col-12 col-sm-6">
-              <q-select v-model="form.supervisorId" :options="supervisors" label="Asignar Supervisor" outlined dense required />
+            <div class="form-group">
+              <label>Asignar Supervisor</label>
+              <select v-model="form.supervisorId" class="form-input" required>
+                <option :value="null" disabled selected>Seleccione un supervisor</option>
+                <option v-for="opt in supervisors" :key="opt.value" :value="opt">{{ opt.label }}</option>
+              </select>
             </div>
           </template>
-        </div>
+        </section>
 
-        <div class="row justify-end q-mt-xl">
-          <q-btn label="Cancelar" flat color="grey-7" class="q-mr-sm" :to="{ name: 'home' }" />
-          <q-btn label="Registrar y Procesar" color="primary" unelevated :loading="loading" type="submit" />
+        <div class="form-actions">
+          <router-link :to="{ name: 'home' }" class="btn btn-outline">Cancelar</router-link>
+          <button type="submit" class="btn btn-primary" :disabled="loading">
+            <span v-if="loading">Procesando...</span>
+            <span v-else>Registrar y Procesar</span>
+          </button>
         </div>
-      </q-form>
-    </q-card>
-  </q-page>
+      </form>
+    </div>
+  </div>
 </template>
+
+<style scoped>
+.register-view { display: flex; justify-content: center; padding: 1rem 0; }
+.register-card { width: 100%; max-width: 750px; padding: 2rem; }
+.register-header { border-bottom: 1px solid var(--sena-gray-medium); padding-bottom: 1rem; margin-bottom: 1.5rem; }
+.register-header h2 { color: var(--sena-purple); font-weight: 800; }
+.section-title { font-size: 0.9rem; font-weight: 700; color: var(--sena-green); margin-bottom: 1rem; text-transform: uppercase; }
+.separator { height: 1px; background: #EEE; margin: 1.5rem 0; }
+.input-wrapper { position: relative; display: flex; align-items: center; }
+.prefix { position: absolute; left: 0.75rem; color: var(--sena-text-light); font-weight: 700; }
+.has-prefix { padding-left: 1.5rem !important; }
+.form-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; }
+</style>
