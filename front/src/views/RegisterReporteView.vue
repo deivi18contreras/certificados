@@ -58,7 +58,10 @@ const handleRegister = async () => {
       entidadPagadora: ''
     };
   } catch (error) {
-    alert('Error al registrar reporte. Verifique los campos.');
+    const errorMsg = error.response?.data?.errors 
+      ? error.response.data.errors.map(e => e.mensaje).join('\n') 
+      : 'Error desconocido al registrar reporte.';
+    alert('Error al registrar reporte:\n' + errorMsg);
   } finally {
     isSubmitting.value = false;
   }
