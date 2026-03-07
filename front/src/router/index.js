@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import { useAuthStore } from '@/stores/auth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -7,34 +7,46 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView,
+      component: () => import('../views/HomeView.vue'),
     },
     {
-      path: '/contratistas',
-      name: 'contratistas',
-      component: () => import('../views/ContratistasView.vue'),
+      path: '/login',
+      name: 'login',
+      component: () => import('../views/LoginView.vue'),
     },
     {
-      path: '/supervisores',
-      name: 'supervisores',
-      component: () => import('../views/SupervisoresView.vue'),
+      path: '/permisos',
+      name: 'permisos',
+      component: () => import('../views/DriveAuthView.vue'),
+      meta: { requiresAuth: true }
     },
     {
-      path: '/reportes',
-      name: 'reportes',
-      component: () => import('../views/ReportesView.vue'),
+      path: '/dashboard',
+      name: 'dashboard',
+      component: () => import('../views/DashboardView.vue'),
+      meta: { requiresAuth: true }
     },
     {
-      path: '/register-reporte',
-      name: 'nuevo-reporte',
-      component: () => import('../views/RegisterReporteView.vue'),
+      path: '/registrar-planilla',
+      name: 'registrar-planilla',
+      component: () => import('../views/RegisterPlanillaView.vue'),
     },
     {
-      path: '/certificates',
-      name: 'certificates',
-      component: () => import('../views/CertificatesView.vue'),
-    },
+      path: '/confirmacion',
+      name: 'confirmacion',
+      component: () => import('../views/ConfirmationView.vue'),
+    }
   ],
+})
+
+// Navigation Guard para proteger rutas de supervisor
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore()
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    next({ name: 'login' })
+  } else {
+    next()
+  }
 })
 
 export default router
