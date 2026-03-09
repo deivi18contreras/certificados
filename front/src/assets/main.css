@@ -1,14 +1,15 @@
 :root {
-  --primary-color: #1a73e8;
-  --secondary-color: #42b883;
+  --primary-color: #39A900;
+  --secondary-color: #FF6B00;
   --bg-color: #f8f9fa;
-  --text-color: #202124;
+  --text-color: #2F2F2F;
   --card-bg: #ffffff;
   --sidebar-width: 260px;
   --transition: all 0.3s ease;
   --shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
   --border-radius: 8px;
 }
+
 
 * {
   box-sizing: border-box;

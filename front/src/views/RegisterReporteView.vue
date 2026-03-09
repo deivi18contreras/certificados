@@ -1,167 +1,182 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
-import apiService from '../api/apiService';
-
-const contratistas = ref([]);
-const supervisores = ref([]);
-const isSubmitting = ref(false);
-
-const newReporte = ref({
-  numPlanilla: '',
-  fechaPago: '',
-  valorPagado: '',
-  mesPagado: '',
-  contratistaId: '',
-  supervisorId: '',
-  entidadPagadora: ''
-});
-
-// Lógica para determinar qué campos son obligatorios según la entidad
-const needsPlanilla = computed(() => {
-  return ['asopagos', 'compensar'].includes(newReporte.value.entidadPagadora);
-});
-
-const needsValor = computed(() => {
-  return ['asopagos'].includes(newReporte.value.entidadPagadora);
-});
-
-const loadData = async () => {
-  try {
-    const resC = await apiService.getContratistas();
-    contratistas.value = resC.data || resC;
-    const resS = await apiService.getSupervisors();
-    supervisores.value = resS.data || resS;
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-const handleRegister = async () => {
-  isSubmitting.value = true;
-  try {
-    // Limpiar campos que no aplican según la entidad antes de enviar
-    const dataToSend = { ...newReporte.value };
-    if (!needsPlanilla.value) dataToSend.numPlanilla = null;
-    if (!needsValor.value) dataToSend.valorPagado = null;
-
-    await apiService.createReporte(dataToSend);
-    alert('Reporte registrado exitosamente');
-    
-    // Reset form
-    newReporte.value = {
-      numPlanilla: '',
-      fechaPago: '',
-      valorPagado: '',
-      mesPagado: '',
-      contratistaId: '',
-      supervisorId: '',
-      entidadPagadora: ''
-    };
-  } catch (error) {
-    const errorMsg = error.response?.data?.errors 
-      ? error.response.data.errors.map(e => e.mensaje).join('\n') 
-      : 'Error desconocido al registrar reporte.';
-    alert('Error al registrar reporte:\n' + errorMsg);
-  } finally {
-    isSubmitting.value = false;
-  }
-};
-
-onMounted(() => {
-  loadData();
-});
+// Lógica eliminada
 </script>
 
 <template>
   <div class="container">
     <div class="card">
-      <h1>Registrar Nuevo Reporte de Pago</h1>
+      <div class="header">
+        <h1>Registrar Reporte de Pago</h1>
+        <div class="badge">Robot Activo</div>
+      </div>
       <p style="color: #5f6368; margin-bottom: 2rem;">
-        Los campos se ajustarán automáticamente según la entidad pagadora seleccionada.
+        Complete la información de su pago. El sistema descargará automáticamente el certificado y lo guardará en el Drive de su supervisor.
       </p>
       
-      <form @submit.prevent="handleRegister">
-        <!-- Selección de Entidad (Primero para activar lógica dinámica) -->
+      <form>
+        <!-- Selección de Operador -->
         <div class="form-group">
-          <label>Entidad Pagadora:</label>
-          <select v-model="newReporte.entidadPagadora" required>
-            <option value="" disabled>Seleccione entidad</option>
-            <option value="asopagos">Asopagos (Requiere Planilla y Valor)</option>
-            <option value="soi">SOI (Solo requiere Mes)</option>
-            <option value="compensar">Compensar / MiPlanilla (Requiere Planilla)</option>
-            <option value="aportesEnLinea">Aportes en Línea (Solo requiere Mes)</option>
+          <label>Operador de Pago:</label>
+          <select class="select-operador">
+            <option value="" disabled>Seleccione entidad operador</option>
+            <option value="Aportes en Línea">Aportes en Línea</option>
+            <option value="Compensar MiPlanilla">Compensar MiPlanilla</option>
+            <option value="SOI">SOI</option>
+            <option value="Asopagos">Asopagos (Enlace APB)</option>
           </select>
         </div>
 
         <div class="grid">
           <div class="form-group">
             <label>Contratista:</label>
-            <select v-model="newReporte.contratistaId" required>
-              <option value="" disabled>Seleccione un contratista</option>
-              <option v-for="c in contratistas" :key="c._id" :value="c._id">
-                {{ c.nombres }} {{ c.apellidos }} ({{ c.numeroDoc }})
-              </option>
+            <select>
+              <option value="" disabled>Seleccione contratista</option>
             </select>
           </div>
 
           <div class="form-group">
             <label>Supervisor:</label>
-            <select v-model="newReporte.supervisorId" required>
-              <option value="" disabled>Seleccione un supervisor</option>
-              <option v-for="s in supervisores" :key="s._id" :value="s._id">
-                {{ s.nombre }}
-              </option>
+            <select>
+              <option value="" disabled>Asignar supervisor</option>
             </select>
           </div>
         </div>
 
-        <div class="grid">
-          <!-- Campo Dinámico: Número de Planilla -->
-          <div class="form-group" v-if="newReporte.entidadPagadora">
-            <label>Número de Planilla: <span v-if="!needsPlanilla" style="font-weight: normal; color: #9aa0a6;">(Opcional para {{ newReporte.entidadPagadora }})</span></label>
-            <input 
-              v-model.number="newReporte.numPlanilla" 
-              type="number" 
-              :placeholder="needsPlanilla ? 'Requerido para esta entidad' : 'No es indispensable'"
-              :required="needsPlanilla" 
-            />
+        <!-- Campos Dinámicos -->
+        <div class="dynamic-fields-section">
+          <h3 class="section-title">Datos específicos</h3>
+          
+          <div class="grid">
+            <div class="form-group">
+              <label>Entidad EPS:</label>
+              <input type="text" placeholder="Ej: Sanitas, Sura..." />
+            </div>
+
+            <div class="form-group">
+              <label>Número de Planilla:</label>
+              <input type="text" placeholder="Obligatorio" />
+            </div>
           </div>
 
-          <div class="form-group">
-            <label>Mes de la Planilla:</label>
-            <select v-model="newReporte.mesPagado" required>
-              <option value="" disabled>Seleccione un mes</option>
-              <option v-for="m in ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']" :key="m" :value="m">
-                {{ m.charAt(0).toUpperCase() + m.slice(1) }}
-              </option>
-            </select>
-          </div>
-        </div>
+          <div class="grid">
+            <div class="form-group">
+              <label>Valor Pagado:</label>
+              <input type="number" placeholder="0" />
+            </div>
 
-        <div class="grid" v-if="newReporte.entidadPagadora">
-          <!-- Campo Dinámico: Valor Pagado -->
-          <div class="form-group">
-            <label>Valor Pagado: <span v-if="!needsValor" style="font-weight: normal; color: #9aa0a6;">(Opcional)</span></label>
-            <input 
-              v-model.number="newReporte.valorPagado" 
-              type="number" 
-              placeholder="$ 0.00" 
-              :required="needsValor" 
-            />
-          </div>
-
-          <div class="form-group">
-            <label>Fecha Efectiva de Pago:</label>
-            <input v-model="newReporte.fechaPago" type="date" />
+            <div class="form-group">
+              <label>Periodo Pagado:</label>
+              <div class="periodo-inputs">
+                <select>
+                  <option value="" disabled>Mes</option>
+                </select>
+                <input type="number" placeholder="Año" />
+              </div>
+            </div>
           </div>
         </div>
 
-        <div style="margin-top: 1rem;">
-          <button type="submit" class="btn btn-primary" :disabled="isSubmitting" style="width: 100%;">
-            {{ isSubmitting ? 'Registrando...' : 'Registrar Reporte' }}
+        <div style="margin-top: 2rem;">
+          <button type="submit" class="btn btn-primary">
+            Confirmar y Enviar al Robot
           </button>
         </div>
       </form>
     </div>
   </div>
 </template>
+
+<style scoped>
+.container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+.card {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  border-top: 5px solid #38a900;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.badge {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+.form-group {
+  margin-bottom: 1.25rem;
+}
+label {
+  display: block;
+  margin-bottom: 0.6rem;
+  font-weight: 600;
+  color: #3c4043;
+}
+input, select {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #dadce0;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+input:focus, select:focus {
+  outline: none;
+  border-color: #38a900;
+}
+.section-title {
+  font-size: 1.1rem;
+  color: #1a73e8;
+  border-bottom: 1px solid #e8eaed;
+  padding-bottom: 0.5rem;
+  margin: 1.5rem 0 1rem 0;
+}
+.periodo-inputs {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 0.5rem;
+}
+.info-text {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 6px;
+  color: #5f6368;
+  font-size: 0.9rem;
+}
+.btn {
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.1rem;
+  transition: background 0.2s;
+}
+.btn-primary {
+  background: #38a900;
+  color: white;
+}
+.btn-primary:hover {
+  background: #2e8a00;
+}
+.btn:disabled {
+  background: #e0e0e0;
+  cursor: not-allowed;
+}
+</style>

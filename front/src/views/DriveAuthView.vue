@@ -2,16 +2,23 @@
 import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { getGoogleAuthUrl } from '@/services/apiSupervisor'
+import { useAuthStore } from '@/stores/auth'
 
 const $q = useQuasar()
 const router = useRouter()
+const authStore = useAuthStore()
 
 const handleGrantPermissions = async () => {
+  if (!authStore.user?.id) {
+    $q.notify({ type: 'negative', message: 'Error: No se encontró la sesión del supervisor.' })
+    return
+  }
+
   $q.loading.show({ message: 'Conectando con Google API...' })
   
   try {
-    const res = await getGoogleAuthUrl()
-    if (res.success && res.url) {
+    const res = await getGoogleAuthUrl(authStore.user.id)
+    if (res.url) {
       window.location.href = res.url // Redirección externa a Google
     } else {
       throw new Error('No se pudo obtener la URL de autenticación')

@@ -1,38 +1,5 @@
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
-import { loginSupervisor } from '@/services/apiSupervisor'
-import { useQuasar } from 'quasar'
-
-const $q = useQuasar()
-const router = useRouter()
-const authStore = useAuthStore()
-
-const email = ref('')
-const password = ref('')
-const loading = ref(false)
-
-const handleLogin = async () => {
-  if (!email.value || !password.value) {
-    $q.notify({ type: 'negative', message: 'Por favor complete todos los campos' })
-    return
-  }
-
-  loading.value = true
-  try {
-    const response = await loginSupervisor({ email: email.value, password: password.value })
-    if (response.success) {
-      authStore.login(response.data, response.token)
-      $q.notify({ type: 'positive', message: 'Bienvenido ' + response.data.nombre })
-      router.push({ name: 'permisos' })
-    }
-  } catch (error) {
-    $q.notify({ type: 'negative', message: 'Credenciales inválidas o error de conexión' })
-  } finally {
-    loading.value = false
-  }
-}
+// Lógica eliminada
 </script>
 
 <template>
@@ -44,29 +11,23 @@ const handleLogin = async () => {
       </q-card-section>
 
       <q-card-section class="q-px-xl q-pb-xl">
-        <q-form @submit="handleLogin" class="q-gutter-md">
+        <q-form class="q-gutter-md">
           <q-input 
-            v-model="email" 
             label="Correo electrónico" 
             type="email" 
             outlined 
             dense 
-            :rules="[val => !!val || 'Campo obligatorio']"
           />
           <q-input 
-            v-model="password" 
             label="Contraseña" 
             type="password" 
             outlined 
             dense 
-            :rules="[val => !!val || 'Campo obligatorio']"
           />
           <q-btn 
             label="Entrar" 
             color="primary" 
             class="full-width q-mt-md" 
-            type="submit" 
-            :loading="loading"
             unelevated
           />
         </q-form>
