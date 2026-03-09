@@ -1,8 +1,8 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
-import { loginSupervisor } from '@/services/apiSupervisor'
+import { useAuthStore } from '../stores/auth'
+import { loginSupervisor } from '../services/apiSupervisor'
 import { useQuasar } from 'quasar'
 
 const $q = useQuasar()
@@ -22,17 +22,29 @@ const handleLogin = async () => {
   loading.value = true
   try {
     const response = await loginSupervisor({ email: email.value, password: password.value })
-    if (response.success) {
-      authStore.login(response.data, response.token)
-      $q.notify({ type: 'positive', message: 'Bienvenido ' + response.data.nombre })
-      router.push({ name: 'permisos' })
+    
+    if (response.token) {
+      authStore.login(response.supervisor, response.token)
+      $q.notify({ 
+        type: 'positive', 
+        message: `Bienvenido, ${response.supervisor.nombre}`,
+        position: 'top',
+        timeout: 2000
+      })
+      router.push({ name: 'dashboard' })
     }
   } catch (error) {
-    $q.notify({ type: 'negative', message: 'Credenciales inválidas o error de conexión' })
+    const errorMsg = error.response?.data?.message || 'Credenciales inválidas o error de conexión'
+    $q.notify({ 
+      type: 'negative', 
+      message: errorMsg,
+      position: 'top'
+    })
   } finally {
     loading.value = false
   }
 }
+
 </script>
 
 <template>

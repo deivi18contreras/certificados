@@ -20,22 +20,30 @@ export const getContratistas = async (req, res, next) => {
 // @access  Public
 export const registerContratista = async (req, res, next) => {
   try {
-    const { nombres, apellidos, tipoDoc, numeroDoc, eps, expCedula } = req.body;
+    const { 
+      nombres, 
+      apellidos, 
+      tipoDocumento, 
+      numeroDocumento, 
+      eps, 
+      fechaExpedicion 
+    } = req.body;
 
-    const existingContratista = await Contratista.findOne({ numeroDoc });
+    const existingContratista = await Contratista.findOne({ numeroDocumento });
     if (existingContratista) {
-      const error = new Error('El contratista con este número de documento ya existe');
-      error.statusCode = 400;
-      throw error;
+      return res.status(400).json({
+        success: false,
+        message: 'El contratista con este número de documento ya existe'
+      });
     }
 
     const newContratista = await Contratista.create({
       nombres,
       apellidos,
-      tipoDoc,
-      numeroDoc,
+      tipoDocumento,
+      numeroDocumento,
       eps,
-      expCedula
+      fechaExpedicion
     });
 
     res.status(201).json({
@@ -49,33 +57,62 @@ export const registerContratista = async (req, res, next) => {
 
 // @desc    Actualizar un contratista
 // @route   PUT /api/contratistas/:id
-// @access  Private (Se protegerá en las rutas)
+// @access  Private
 export const updateContratista = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { nombres, apellidos, tipoDoc, numeroDoc, eps, expCedula } = req.body;
+    const { 
+      nombres, 
+      apellidos, 
+      tipoDocumento, 
+      numeroDocumento, 
+      eps, 
+      fechaExpedicion 
+    } = req.body;
 
     const contratista = await Contratista.findById(id);
 
     if (!contratista) {
-      const error = new Error('Contratista no encontrado');
-      error.statusCode = 404;
-      throw error;
+      return res.status(404).json({ success: false, message: 'Contratista no encontrado' });
     }
 
     // Actualizar campos
     contratista.nombres = nombres || contratista.nombres;
     contratista.apellidos = apellidos || contratista.apellidos;
-    contratista.tipoDoc = tipoDoc || contratista.tipoDoc;
-    contratista.numeroDoc = numeroDoc || contratista.numeroDoc;
+    contratista.tipoDocumento = tipoDocumento || contratista.tipoDocumento;
+    contratista.numeroDocumento = numeroDocumento || contratista.numeroDocumento;
     contratista.eps = eps || contratista.eps;
-    contratista.expCedula = expCedula || contratista.expCedula;
+    contratista.fechaExpedicion = fechaExpedicion || contratista.fechaExpedicion;
 
     const updatedContratista = await contratista.save();
 
     res.status(200).json({
       success: true,
       data: updatedContratista
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Obtener contratista por número de documento
+// @route   GET /api/contratistas/documento/:numeroDocumento
+// @access  Public
+export const getContratistaByDocumento = async (req, res, next) => {
+  try {
+    const { numeroDocumento } = req.params;
+    const contratista = await Contratista.findOne({ numeroDocumento });
+
+    if (!contratista) {
+      return res.status(404).json({
+        success: false,
+        message: 'Contratista no encontrado con ese número de documento'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: contratista
     });
   } catch (error) {
     next(error);

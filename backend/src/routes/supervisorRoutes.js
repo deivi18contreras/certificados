@@ -4,28 +4,25 @@ import {
   getSupervisors, 
   registerSupervisor, 
   loginSupervisor, 
-  getSupervisorProfile 
+  getSupervisorProfile,
+  getGoogleAuthUrl,
+  googleCallback 
 } from '../controllers/supervisorController.js';
 import protect from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-// Middleware para manejar errores de validación
 const validateRequest = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({
       success: false,
-      errors: errors.array().map((err) => ({
-        campo: err.path,
-        mensaje: err.msg,
-      })),
+      errors: errors.array().map((err) => ({ campo: err.path, mensaje: err.msg }))
     });
   }
   next();
 };
 
-// Rutas Públicas
 router.get('/', getSupervisors);
 
 router.post(
@@ -50,7 +47,10 @@ router.post(
   loginSupervisor
 );
 
-// Rutas Privadas
 router.get('/profile', protect, getSupervisorProfile);
+
+// Google Drive Auth - Ruta ajustada a GOOGLE_REDIRECT_URI del usuario
+router.get('/google/auth/:id', getGoogleAuthUrl); 
+router.get('/google/callback', googleCallback);
 
 export default router;

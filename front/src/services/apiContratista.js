@@ -1,22 +1,16 @@
-import axios from './axios'
+import api from './axios';
 
-const getContratistas = async () => {
-  const { data } = await axios.get('/contratistas')
-  return data
-}
+export const getContratistas = async () => {
+  const { data } = await api.get('/contratistas');
+  return data;
+};
 
-const registerContratista = async (contratistaData) => {
-  const { data } = await axios.post('/contratistas', contratistaData)
-  return data
-}
+export const getContratistaByDoc = async (doc) => {
+  const { data } = await api.get(`/contratistas/documento/${doc}`);
+  return data;
+};
 
-const updateContratista = async (id, contratistaData) => {
-  const { data } = await axios.put(`/contratistas/${id}`, contratistaData)
-  return data
-}
-
-export {
-  getContratistas,
-  registerContratista,
-  updateContratista
-}
+export const registerContratista = async (contratistaData) => {
+  const { data } = await api.post('/contratistas', contratistaData);
+  return data;
+};

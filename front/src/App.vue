@@ -1,5 +1,5 @@
 <script setup>
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from './stores/auth'
 import { useRouter } from 'vue-router'
 
 const authStore = useAuthStore()
@@ -30,9 +30,10 @@ const handleLogout = () => {
         <div class="q-gutter-sm row items-center no-wrap">
           <q-btn flat label="Inicio" :to="{ name: 'home' }" />
           
+          <q-btn flat label="Registrar Planilla" :to="{ name: 'registrar-planilla' }" />
+          
           <template v-if="authStore.isAuthenticated">
             <q-btn flat label="Dashboard" :to="{ name: 'dashboard' }" />
-            <q-btn flat label="Permisos Drive" :to="{ name: 'permisos' }" />
             <q-separator vertical inset dark class="q-mx-sm" />
             <div class="gt-xs text-weight-medium">{{ authStore.user?.nombre }}</div>
             <q-btn round flat icon="logout" @click="handleLogout">

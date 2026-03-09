@@ -1,16 +1,16 @@
-import axios from './axios'
+import api from './axios';
 
-const getReportes = async () => {
-  const { data } = await axios.get('/reportes')
-  return data
-}
+export const getReportes = async () => {
+  const { data } = await api.get('/reportes');
+  return data;
+};
 
-const registerReporte = async (reporteData) => {
-  const { data } = await axios.post('/reportes', reporteData)
-  return data
-}
+export const getReportesBySupervisor = async (supervisorId) => {
+    const { data } = await api.get(`/reportes/supervisor/${supervisorId}`);
+    return data;
+};
 
-export {
-  getReportes,
-  registerReporte
-}
+export const registerReporte = async (reporteData) => {
+  const { data } = await api.post('/reportes', reporteData);
+  return data;
+};

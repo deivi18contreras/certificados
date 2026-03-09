@@ -1,19 +1,32 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
+import { getGoogleAuthUrl } from '@/services/apiSupervisor'
+import { useAuthStore } from '@/stores/auth'
 
 const $q = useQuasar()
 const router = useRouter()
+const authStore = useAuthStore()
 
-const handleGrantPermissions = () => {
+const handleGrantPermissions = async () => {
+  if (!authStore.user?.id) {
+    $q.notify({ type: 'negative', message: 'Error: No se encontró la sesión del supervisor.' })
+    return
+  }
+
   $q.loading.show({ message: 'Conectando con Google API...' })
   
-  // Simulación de autenticación con Google
-  setTimeout(() => {
+  try {
+    const res = await getGoogleAuthUrl(authStore.user.id)
+    if (res.url) {
+      window.location.href = res.url // Redirección externa a Google
+    } else {
+      throw new Error('No se pudo obtener la URL de autenticación')
+    }
+  } catch (error) {
     $q.loading.hide()
-    $q.notify({ type: 'positive', message: 'Permisos concedidos exitosamente' })
-    router.push({ name: 'dashboard' })
-  }, 2000)
+    $q.notify({ type: 'negative', message: 'Error al conectar con Google: ' + error.message })
+  }
 }
 </script>
 

@@ -2,241 +2,201 @@ import puppeteer from 'puppeteer';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import admZip from 'adm-zip';
 
-// Obtener __dirname en ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DOWNLOAD_PATH = path.join(__dirname, '../../temp_downloads');
 
-// Asegurar que existe el directorio de descargas
 if (!fs.existsSync(DOWNLOAD_PATH)) {
   fs.mkdirSync(DOWNLOAD_PATH, { recursive: true });
 }
 
-/**
- * @desc    Inicia el proceso de descarga automática de la planilla
- * @param   {object} data - Datos del reporte (entidad, documento, etc.)
- * @returns {string} - Ruta local del archivo descargado
- */
-export const downloadPlanilla = async (data) => {
-  const { entidadPagadora } = data;
-  
-  const browser = await puppeteer.launch({
-    headless: false, // Se deja en false para ver el proceso (debug), en prod cambiar a true
-    defaultViewport: null,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--start-maximized']
-  });
+// Mapeo de meses a números
+const monthToNumber = (monthName) => {
+  const months = {
+    'enero': '1', 'febrero': '2', 'marzo': '3', 'abril': '4',
+    'mayo': '5', 'junio': '6', 'julio': '7', 'agosto': '8',
+    'septiembre': '9', 'octubre': '10', 'noviembre': '11', 'diciembre': '12'
+  };
+  return months[monthName.toLowerCase()] || '1';
+};
 
+/**
+ * @desc    Lógica principal de descarga automatizada según el operador.
+ */
+export const downloadPlanilla = async (reporte) => {
+  const { operadorPago, contratista, periodoPago, datosOperador } = reporte;
+  
+  let browser;
   try {
-    const page = await browser.newPage();
-    
-    // Configurar comportamiento de descarga
+    console.log('🔗 Intentando conectar a Chrome existente en puerto 9222...');
+    browser = await puppeteer.connect({ browserURL: 'http://localhost:9222' });
+    console.log('✅ Conectado a Chrome existente.');
+  } catch (error) {
+    console.log('⚠️ No se pudo conectar a Chrome en el puerto 9222. Iniciando nueva instancia visible...');
+    browser = await puppeteer.launch({
+      headless: false,
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--start-maximized']
+    });
+  }
+
+  let page;
+  try {
+    page = await browser.newPage();
     const client = await page.target().createCDPSession();
     await client.send('Page.setDownloadBehavior', {
       behavior: 'allow',
       downloadPath: DOWNLOAD_PATH,
     });
 
-    // Configurar timeout y user agent para evitar bloqueos simples
     page.setDefaultNavigationTimeout(60000);
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
 
     let filePath = '';
-
-    switch (entidadPagadora) {
-      case 'asopagos':
-        filePath = await scrapeAsopagos(page, data);
+    switch (operadorPago) {
+      case 'Aportes en Línea':
+        filePath = await scrapeAportesEnLinea(page, { contratista, periodoPago, datosOperador });
         break;
-      case 'soi':
-        filePath = await scrapeSOI(page, data);
+      case 'Compensar MiPlanilla':
+        filePath = await scrapeCompensar(page, { contratista, periodoPago, datosOperador });
         break;
-      case 'aportesEnLinea':
-        filePath = await scrapeAportesEnLinea(page, data);
+      case 'SOI':
+        filePath = await scrapeSOI(page, { contratista, periodoPago, datosOperador });
         break;
-      case 'compensar':
-        filePath = await scrapeCompensar(page, data);
+      case 'Asopagos':
+      case 'Enlace-APB':
+        filePath = await scrapeEnlaceAPB(page, { contratista, periodoPago, datosOperador });
         break;
       default:
-        throw new Error('Entidad pagadora no soportada actualmente');
+        throw new Error(`Entidad ${operadorPago} no soportada`);
     }
 
     return filePath;
   } catch (error) {
-    console.error('*** Error durante el scraping:', error.message);
+    console.error(`❌ Error en scraping (${operadorPago}):`, error.message);
     throw error;
   } finally {
-    // Esperar un poco antes de cerrar para asegurar descargas en progreso
-    await new Promise(r => setTimeout(r, 5000));
-    await browser.close();
+    if (page) await page.close();
   }
 };
 
-/**
- * Helper para esperar descarga
- */
-const waitForDownload = async (filenamePrefix) => {
-  console.log(`Esperando descarga que empiece con: ${filenamePrefix}`);
-  // Lógica simplificada: esperar y buscar archivo más reciente
-  await new Promise(resolve => setTimeout(resolve, 5000));
-  
-  const files = fs.readdirSync(DOWNLOAD_PATH);
-  // Buscar archivo PDF reciente
-  const recentFile = files
-    .map(file => ({ file, mtime: fs.statSync(path.join(DOWNLOAD_PATH, file)).mtime }))
-    .sort((a, b) => b.mtime - a.mtime)[0];
-
-  if (recentFile && recentFile.file.endsWith('.pdf')) {
-    return path.join(DOWNLOAD_PATH, recentFile.file);
-  }
-  throw new Error('No se encontró el archivo descargado');
-};
-
-/**
- * Lógica específica para Asopagos
- * URL: https://www.enlace-apb.com/interssi/.plus
- */
-const scrapeAsopagos = async (page, data) => {
-  console.log('--- Iniciando Scraping Asopagos ---');
-  await page.goto('https://www.enlace-apb.com/interssi/.plus', { waitUntil: 'networkidle2' });
-  
-  const { contratista, numPlanilla, valorPagado } = data;
-
-  // NOTA: Los selectores son aproximados y dependen de la estructura real del sitio
-  // Se debe inspeccionar el sitio real para obtener los IDs correctos.
-  
-  // Ejemplo hipotético de flujo:
-  // 1. Seleccionar tipo documento (CC)
-  // await page.select('#tipoDocumento', 'CC'); // Asumiendo ID
-  
-  // 2. Ingresar número documento
-  // await page.type('#numeroDocumento', contratista.numDocumento.toString());
-  
-  // 3. Ingresar número de planilla
-  // await page.type('#numeroPlanilla', numPlanilla.toString());
-  
-  // 4. Clic en Buscar/Consultar
-  // await page.click('#btnConsultar');
-  
-  // 5. Esperar resultados y descargar
-  // await page.waitForSelector('.btn-descargar-pdf');
-  // await page.click('.btn-descargar-pdf');
-
-  console.log('Simulando navegación y descarga en Asopagos...');
-  
-  // Simulación para prueba sin credenciales reales
-  const mockPath = path.join(DOWNLOAD_PATH, `Asopagos_${numPlanilla}.pdf`);
-  fs.writeFileSync(mockPath, 'Contenido PDF simulado para Asopagos');
-  
-  return mockPath;
-};
-
-/**
- * Lógica específica para SOI
- * URL: https://servicio.nuevosoi.com.co/soi/certificadoAportesCotizante.do
- */
-const scrapeSOI = async (page, data) => {
-  console.log('--- Iniciando Scraping SOI ---');
-  await page.goto('https://servicio.nuevosoi.com.co/soi/certificadoAportesCotizante.do', { waitUntil: 'networkidle2' });
-  
-  const { contratista, mesPagado } = data;
-
-  // Selectores reales encontrados:
-  // #numeroDocumentoCotizante
-  
-  console.log('Llenando formulario SOI...');
-  await page.type('#numeroDocumentoCotizante', contratista.numDocumento.toString());
-  
-  // Nota: SOI parece requerir selección de banco o aportante en algunos casos, 
-  // pero intentamos flujo básico.
-  
-  console.log('Esperando interacción manual (Captcha)...');
-  // Damos tiempo para que el usuario vea la acción
-  await new Promise(r => setTimeout(r, 5000));
-  
-  const mockPath = path.join(DOWNLOAD_PATH, `SOI_${contratista.numDocumento}.pdf`);
-  fs.writeFileSync(mockPath, 'Contenido PDF simulado para SOI');
-  return mockPath;
-};
-
-/**
- * Lógica específica para AportesEnLinea
- * URL: https://empresas.aportesenlinea.com/Autoservicio/CertificadoAportes.aspx
- */
-const scrapeAportesEnLinea = async (page, data) => {
-  console.log('--- Iniciando Scraping AportesEnLinea ---');
+const scrapeAportesEnLinea = async (page, { contratista, periodoPago, datosOperador }) => {
   await page.goto('https://empresas.aportesenlinea.com/Autoservicio/CertificadoAportes.aspx', { waitUntil: 'networkidle2' });
   
-  const { contratista } = data;
-
-  // Selectores reales encontrados:
-  // #contenido_tbNumeroIdentificacion
-  // #contenido_txtFechaExp (Fecha Expedición)
-  // #contenido_txtAdmin (EPS)
-
-  console.log('Llenando formulario AportesEnLinea...');
+  // Tipo de documento
+  const mapDoc = { 'CC': '1', 'CE': '2', 'TI': '5', 'PEP': '10', 'PPT': '11' };
+  await page.select('#contenido_ddlTipoIdent', mapDoc[contratista.tipoDocumento] || '1');
   
-  // Escribir documento
-  if (contratista.numDocumento) {
-      await page.type('#contenido_tbNumeroIdentificacion', contratista.numDocumento.toString());
+  // Número de documento
+  await page.type('#contenido_tbNumeroIdentificacion', contratista.numeroDocumento);
+  
+  // Fecha expedición (formato AAAA/MM/DD)
+  if (contratista.fechaExpedicion) {
+    const fecha = new Date(contratista.fechaExpedicion).toISOString().split('T')[0].replace(/-/g, '/');
+    await page.type('#contenido_txtFechaExp', fecha);
   }
 
-  // Escribir fecha expedición si existe (formato AAAA/MM/DD según placeholder)
-  if (contratista.expCedula) {
-      // Formatear fecha a YYYY/MM/DD
-      const fecha = new Date(contratista.expCedula);
-      const fechaStr = fecha.toISOString().split('T')[0].replace(/-/g, '/');
-      await page.type('#contenido_txtFechaExp', fechaStr);
-  }
+  // EPS
+  await page.type('#contenido_txtAdmin', contratista.eps || 'SANITAS');
 
-  // Escribir EPS
-  if (contratista.eps) {
-      await page.type('#contenido_txtAdmin', contratista.eps);
-  }
+  // Periodo (mismo mes para inicio y fin por defecto)
+  const mesNum = monthToNumber(periodoPago.mes);
+  await page.select('#contenido_ddlAnioIni', periodoPago.anio);
+  await page.select('#contenido_ddlMesIni', mesNum);
+  await page.select('#contenido_ddlAnioFin', periodoPago.anio);
+  await page.select('#contenido_ddlMesFin', mesNum);
+
+  console.log('Esperando resolución de Captcha si aparece...');
+  await page.click('#contenido_btnCalcular');
   
-  console.log('Esperando interacción...');
-  await new Promise(r => setTimeout(r, 5000));
-  
-  const mockPath = path.join(DOWNLOAD_PATH, `AportesEnLinea_${contratista.numDocumento}.pdf`);
-  fs.writeFileSync(mockPath, 'Contenido PDF simulado para AportesEnLinea');
-  return mockPath;
+  return await waitForDownload('Aportes');
 };
 
-/**
- * Lógica específica para Compensar (MiPlanilla)
- * URL: https://www.miplanilla.com/Private/Consultaplanillaindependiente.aspx
- */
-const scrapeCompensar = async (page, data) => {
-  console.log('--- Iniciando Scraping Compensar ---');
+const scrapeCompensar = async (page, { contratista, periodoPago, datosOperador }) => {
   await page.goto('https://www.miplanilla.com/Private/Consultaplanillaindependiente.aspx', { waitUntil: 'networkidle2' });
   
-  const { contratista, numPlanilla, valorPagado } = data;
+  // El numero de planilla viene en datosOperador (Map)
+  const numeroPlanilla = datosOperador instanceof Map ? datosOperador.get('numeroPlanilla') : datosOperador.numeroPlanilla;
 
-  // Selectores reales encontrados:
-  // #cp1_txtNumeroDocumento
-  // #cp1_txtNumeroPlanilla
-  // #cp1_txtValorPagado
-  // #cp1_ButtonConsultar
+  await page.type('#txtNumeroDocumento', contratista.numeroDocumento);
+  await page.type('#txtNumeroPlanilla', numeroPlanilla || '');
+  
+  console.log('Esperando 15 segundos para resolución de Captcha manual...');
+  await new Promise(r => setTimeout(r, 15000)); 
+  
+  await page.click('#btnConsultar');
+  return await waitForDownload('Compensar');
+};
 
-  console.log('Llenando formulario Compensar...');
+const scrapeSOI = async (page, { contratista, periodoPago, datosOperador }) => {
+  await page.goto('https://servicio.nuevosoi.com.co/soi/certificadoAportesCotizante.do', { waitUntil: 'networkidle2' });
   
-  await page.type('#cp1_txtNumeroDocumento', contratista.numDocumento.toString());
+  // Datos Aportante (Asumimos el mismo contratista)
+  const mapDocSOI = { 'CC': '1', 'CE': '6', 'NIT': '2', 'PEP': '9', 'PPT': '10' };
+  await page.select('#tipoDocumentoAportante', mapDocSOI[contratista.tipoDocumento] || '1');
+  await page.type('input[name="numeroDocumentoAportante"]', contratista.numeroDocumento);
+
+  // Datos Cotizante
+  await page.select('#tipoDocumentoCotizante', mapDocSOI[contratista.tipoDocumento] || '1');
+  await page.type('#numeroDocumentoCotizante', contratista.numeroDocumento);
+
+  // EPS mapping (Simplificado para Sanitas y Nueva EPS)
+  let epsVal = '128'; // Sanitas por defecto
+  if (contratista.eps?.toUpperCase().includes('NUEVA')) epsVal = '171';
+  if (contratista.eps?.toUpperCase().includes('SUR')) epsVal = '132';
+  if (contratista.eps?.toUpperCase().includes('COMPENSAR')) epsVal = '130';
   
-  if (numPlanilla) {
-    await page.type('#cp1_txtNumeroPlanilla', numPlanilla.toString());
+  await page.select('#administradoraSalud', epsVal);
+
+  // Periodo
+  const mesNum = monthToNumber(periodoPago.mes);
+  await page.select('#periodoLiqSaludMes', mesNum);
+  await page.select('#periodoLiqSaludAnnio', periodoPago.anio);
+
+  console.log('🚀 Click en Descargar PDF...');
+  await page.click('button.btn-success'); // El botón de descargar
+  
+  return await waitForDownload('SOI');
+};
+
+const scrapeEnlaceAPB = async (page, { contratista, periodoPago, datosOperador }) => {
+  await page.goto('https://www.enlace-apb.com/interssi/.plus', { waitUntil: 'networkidle2' });
+  // Implementación específica pendiente de más detalles del portal
+  return await waitForDownload('Enlace');
+};
+
+const waitForDownload = async (prefix) => {
+  console.log(`⏳ Esperando archivo para ${prefix} en ${DOWNLOAD_PATH}...`);
+  let attempts = 0;
+  while (attempts < 30) {
+    const files = fs.readdirSync(DOWNLOAD_PATH);
+    const downloadFile = files.find(f => f.endsWith('.pdf') || f.endsWith('.zip'));
+    
+    if (downloadFile) {
+      const fullPath = path.join(DOWNLOAD_PATH, downloadFile);
+      
+      if (downloadFile.endsWith('.zip')) {
+        console.log('📦 Descomprimiendo ZIP...');
+        const zip = new admZip(fullPath);
+        const zipEntries = zip.getEntries();
+        const pdfEntry = zipEntries.find(entry => entry.entryName.endsWith('.pdf'));
+        
+        if (pdfEntry) {
+          const newPdfName = `${prefix}_${Date.now()}.pdf`;
+          const newPath = path.join(DOWNLOAD_PATH, newPdfName);
+          fs.writeFileSync(newPath, pdfEntry.getData());
+          fs.unlinkSync(fullPath); 
+          return newPath;
+        }
+      }
+
+      const newPdfName = `${prefix}_${Date.now()}.pdf`;
+      const newPath = path.join(DOWNLOAD_PATH, newPdfName);
+      fs.renameSync(fullPath, newPath);
+      return newPath;
+    }
+    await new Promise(r => setTimeout(r, 2000));
+    attempts++;
   }
-
-  if (valorPagado) {
-    await page.type('#cp1_txtValorPagado', valorPagado.toString());
-  }
-  
-  console.log('Intentando clic en Consultar...');
-  // await page.click('#cp1_ButtonConsultar'); 
-  // Comentado para no enviar formulario inválido en prueba
-  
-  console.log('Esperando interacción...');
-  await new Promise(r => setTimeout(r, 5000));
-  
-  const mockPath = path.join(DOWNLOAD_PATH, `Compensar_${numPlanilla}.pdf`);
-  fs.writeFileSync(mockPath, 'Contenido PDF simulado para Compensar');
-  return mockPath;
+  throw new Error('No se detectó la descarga del certificado.');
 };

@@ -3,7 +3,8 @@ import { check, validationResult } from 'express-validator';
 import { 
   getContratistas, 
   registerContratista, 
-  updateContratista 
+  updateContratista,
+  getContratistaByDocumento
 } from '../controllers/contratistaController.js';
 import protect from '../middlewares/authMiddleware.js';
 
@@ -25,13 +26,15 @@ const validateRequest = (req, res, next) => {
 
 // Rutas Públicas (Registro por el contratista)
 router.get('/', getContratistas);
+router.get('/documento/:numeroDocumento', getContratistaByDocumento);
+
 router.post(
   '/',
   [
     check('nombres', 'El nombre es obligatorio').notEmpty().trim(),
     check('apellidos', 'El apellido es obligatorio').notEmpty().trim(),
-    check('tipoDoc', 'El tipo de documento es obligatorio').notEmpty(),
-    check('numeroDoc', 'El número de documento debe ser numérico').isNumeric(),
+    check('tipoDocumento', 'El tipo de documento es obligatorio').notEmpty(),
+    check('numeroDocumento', 'El número de documento debe ser numérico').isNumeric(),
     check('eps', 'La EPS es obligatoria').notEmpty().trim(),
     validateRequest,
   ],

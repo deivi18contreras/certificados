@@ -1,6 +1,6 @@
 import express from 'express';
 import { check, validationResult } from 'express-validator';
-import { getReportes, registerReporte } from '../controllers/reporteController.js';
+import { getReportes, registerReporte, getSupervisorDashboard } from '../controllers/reporteController.js';
 
 const router = express.Router();
 
@@ -21,18 +21,17 @@ const validateRequest = (req, res, next) => {
 
 // Rutas
 router.get('/', getReportes);
+router.get('/dashboard/:supervisorId', getSupervisorDashboard);
 
 router.post(
   '/',
   [
-    check('numPlanilla', 'El número de planilla debe ser numérico').isNumeric(),
-    check('mesPagado', 'El mes pagado debe ser válido').isIn([
-      'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-      'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
-    ]),
     check('contratistaId', 'El ID del contratista es obligatorio').notEmpty().isMongoId(),
     check('supervisorId', 'El ID del supervisor es obligatorio').notEmpty().isMongoId(),
-    check('entidadPagadora', 'La entidad pagadora es obligatoria').isIn(['asopagos', 'soi', 'compensar', 'aportesEnLinea']),
+    check('operadorPago', 'El operador de pago es obligatorio').notEmpty(),
+    check('periodoPago', 'El periodo de pago (mes y año) es obligatorio').isObject(),
+    check('periodoPago.mes', 'El mes es obligatorio').notEmpty(),
+    check('periodoPago.anio', 'El año es obligatorio').notEmpty(),
     validateRequest,
   ],
   registerReporte
