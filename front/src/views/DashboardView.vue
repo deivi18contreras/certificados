@@ -48,18 +48,18 @@ const loadReportes = async () => {
 
 const filteredReportes = computed(() => {
   return reportes.value.filter(r => {
-    const nombres = r.contratistaId?.nombres?.toLowerCase() || ''
-    const apellidos = r.contratistaId?.apellidos?.toLowerCase() || ''
+    const nombres = r.contratista?.nombres?.toLowerCase() || ''
+    const apellidos = r.contratista?.apellidos?.toLowerCase() || ''
     const fullname = `${nombres} ${apellidos}`
-    const cedula = r.contratistaId?.numeroDoc?.toString() || ''
-    const operador = r.entidadPagadora?.toLowerCase() || ''
+    const cedula = r.contratista?.numeroDocumento?.toString() || ''
+    const operador = r.operadorPago?.toLowerCase() || ''
     const s = filters.value.search.toLowerCase()
     
     const matchSearch = !s || fullname.includes(s) || cedula.includes(s) || operador.includes(s)
-    const matchMes = !filters.value.mes || r.mesPagado === filters.value.mes
+    const matchMes = !filters.value.mes || r.periodoPago?.mes === filters.value.mes
     
-    // Filtrar por año solamente (buscando el año en la fecha de pago)
-    const matchAnio = !filters.value.anio || (r.fechaPago && r.fechaPago.includes(filters.value.anio))
+    // Filtrar por año solamente
+    const matchAnio = !filters.value.anio || (r.periodoPago?.anio && r.periodoPago.anio === filters.value.anio)
 
     return matchSearch && matchMes && matchAnio
   })
@@ -153,18 +153,18 @@ onMounted(() => {
             <tr v-for="row in filteredReportes" :key="row._id">
               <td>
                 <div class="contractor-info">
-                  <div class="avatar-sm">{{ getInitials(row.contratistaId?.nombres, row.contratistaId?.apellidos) }}</div>
+                  <div class="avatar-sm">{{ getInitials(row.contratista?.nombres, row.contratista?.apellidos) }}</div>
                   <div class="text-group">
-                    <span class="name">{{ row.contratistaId?.nombres }}</span>
-                    <span class="id">CC {{ row.contratistaId?.numeroDoc }}</span>
+                    <span class="name">{{ row.contratista?.nombres }} {{ row.contratista?.apellidos }}</span>
+                    <span class="id">CC {{ row.contratista?.numeroDocumento }}</span>
                   </div>
                 </div>
               </td>
-              <td><span class="badge badge-secondary">{{ row.entidadPagadora }}</span></td>
-              <td>#{{ row.numPlanilla }}</td>
-              <td class="text-capitalize">{{ row.mesPagado }}</td>
-              <td class="text-bold accent-green">{{ formatCurrency(row.valorPagado) }}</td>
-              <td class="text-faded">{{ formatDate(row.fechaPago) }}</td>
+              <td><span class="badge badge-secondary">{{ row.operadorPago }}</span></td>
+              <td>#{{ row.datosOperador?.numeroPlanilla || 'N/A' }}</td>
+              <td class="text-capitalize">{{ row.periodoPago?.mes }}</td>
+              <td class="text-bold accent-green">{{ formatCurrency(row.datosOperador?.valorPagado) }}</td>
+              <td class="text-faded">{{ formatDate(row.datosOperador?.fechaPago) }}</td>
               <td>
                 <div class="actions-group">
                   <button class="row-btn" @click="downloadReport(row)"><i class="material-icons">visibility</i></button>

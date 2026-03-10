@@ -80,11 +80,12 @@ const handleSubmit = async () => {
     const resReporte = await registerReporte({
       numPlanilla: isCompensar.value ? form.value.numPlanilla : 0, 
       mesPagado: form.value.mesPagado,
+      anio: form.value.anio, // Añadido campo faltante
       valorPagado: isCompensar.value ? form.value.valorPagado : 0,
       fechaPago: isCompensar.value ? form.value.fechaPago : `${form.value.anio}-01-01`, 
       contratistaId: form.value.contratistaId,
       supervisorId: form.value.supervisorId.value,
-      entidadPagadora: form.value.entidadPagadora.toLowerCase() === 'aportes en linea' ? 'aportesEnLinea' : form.value.entidadPagadora.toLowerCase()
+      entidadPagadora: form.value.entidadPagadora.toLowerCase() === 'aportes en linea' ? 'aportesenlinea' : form.value.entidadPagadora.toLowerCase()
     })
 
     if (resReporte.success) {

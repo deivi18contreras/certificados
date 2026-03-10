@@ -60,16 +60,8 @@ const runTest = async () => {
         // 5. Ejecutar el Scraper (Prueba de descarga)
         console.log('🚀 Iniciando Scraper de SOI para el contratista...');
         
-        // Pasamos los datos que espera el scraper
-        const dataForScraper = {
-            entidadPagadora: reporte.operadorPago,
-            contratista: contratista,
-            numPlanilla: reporte.datosOperador.numeroPlanilla,
-            mesPagado: reporte.periodoPago.mes,
-            anioPagado: reporte.periodoPago.anio
-        };
-
-        const filePath = await downloadPlanilla(dataForScraper);
+        // Pasamos el objeto reporte completo como espera el scraper ahora
+        const filePath = await downloadPlanilla(reporte);
         console.log(`✅ Scraper finalizado. Archivo descargado en: ${filePath}`);
 
         console.log('\n--- PRUEBA COMPLETADA (FASE SCRAPING) ---');

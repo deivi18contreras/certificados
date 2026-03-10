@@ -19,7 +19,10 @@ const generateToken = (id) => {
 export const getSupervisors = async (req, res, next) => {
   try {
     const supervisors = await Supervisor.find().select('-password');
-    res.status(200).json(supervisors);
+    res.status(200).json({
+      success: true,
+      data: supervisors
+    });
   } catch (error) {
     next(error);
   }
@@ -61,8 +64,13 @@ export const loginSupervisor = async (req, res, next) => {
 
     if (supervisor && (await bcrypt.compare(password, supervisor.password))) {
       res.status(200).json({
+        success: true,
         token: generateToken(supervisor._id),
-        supervisor: { id: supervisor._id, nombre: supervisor.nombre, email: supervisor.email }
+        data: { 
+          id: supervisor._id, 
+          nombre: supervisor.nombre, 
+          email: supervisor.email 
+        }
       });
     } else {
       const error = new Error('Credenciales inválidas');

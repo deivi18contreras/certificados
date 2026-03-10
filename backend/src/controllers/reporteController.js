@@ -8,7 +8,7 @@ import Supervisor from '../models/Supervisor.js';
 export const getReportes = async (req, res, next) => {
   try {
     const reportes = await Reporte.find()
-      .populate('contratista', 'nombres apellidos numeroDocumento')
+      .populate('contratista')
       .populate('supervisor', 'nombre email');
     
     res.status(200).json({
@@ -47,10 +47,24 @@ export const registerReporte = async (req, res, next) => {
     const { 
       contratistaId, 
       supervisorId, 
-      operadorPago,
-      periodoPago,
-      datosOperador 
+      entidadPagadora, // Viene del front como entidadPagadora
+      mesPagado,
+      anio,
+      numPlanilla,
+      valorPagado,
+      fechaPago
     } = req.body;
+
+    // Mapeo de operador para que coincida con el enum del backend
+    const mapOperadores = {
+      'aportesenlinea': 'Aportes en Línea',
+      'compensar': 'Compensar MiPlanilla',
+      'soi': 'SOI',
+      'asopagos': 'Asopagos',
+      'enlace-apb': 'Enlace-APB'
+    };
+
+    const operadorFinal = mapOperadores[entidadPagadora.toLowerCase()] || entidadPagadora;
 
     // Verificar que existen
     const contratista = await Contratista.findById(contratistaId);
@@ -63,13 +77,20 @@ export const registerReporte = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Supervisor no encontrado' });
     }
 
-    // Crear el registro en la DB
+    // Crear el registro en la DB con la estructura del modelo
     const newReporte = await Reporte.create({
       contratista: contratistaId,
       supervisor: supervisorId,
-      operadorPago,
-      periodoPago,
-      datosOperador,
+      operadorPago: operadorFinal,
+      periodoPago: { 
+        mes: mesPagado, 
+        anio: anio.toString() 
+      },
+      datosOperador: {
+        numeroPlanilla: numPlanilla,
+        valorPagado: valorPagado,
+        fechaPago: fechaPago
+      },
       status: 'Pendiente'
     });
 
