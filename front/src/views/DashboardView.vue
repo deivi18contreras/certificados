@@ -180,9 +180,47 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-.accent-line { width: 30px; height: 3px; background: var(--sena-green); border-radius: 2px; }
-.header-actions { display: flex; gap: 0.5rem; }
+.dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+.accent-line { width: 40px; height: 4px; background: var(--sena-green); border-radius: 2px; margin-top: 4px; }
+.header-actions { display: flex; gap: 0.75rem; }
+
+.btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+}
+
+.btn i { font-size: 20px; }
+
+.btn-secondary {
+  background: var(--sena-green);
+  color: white;
+  box-shadow: 0 4px 12px rgba(57, 169, 0, 0.2);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #329600;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(57, 169, 0, 0.3);
+}
+
+.btn-outline {
+  background: white;
+  border: 2px solid var(--sena-purple);
+  color: var(--sena-purple);
+}
+
+.btn-outline:hover {
+  background: #F3E5F5;
+  transform: translateY(-2px);
+}
 
 .filter-bar {
   background: white;
