@@ -4,44 +4,26 @@ import {
   getSupervisors, 
   registerSupervisor, 
   loginSupervisor, 
-  getSupervisorProfile 
+  getSupervisorProfile,
+  getGoogleAuthUrl,
+  googleCallback 
 } from '../controllers/supervisorController.js';
 import protect from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-// Middleware para manejar errores de validación
 const validateRequest = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({
       success: false,
-      errors: errors.array().map((err) => ({
-        campo: err.path,
-        mensaje: err.msg,
-      })),
+      errors: errors.array().map((err) => ({ campo: err.path, mensaje: err.msg }))
     });
   }
   next();
 };
 
-// Rutas Públicas
 router.get('/', getSupervisors);
-
-// Ruta provisional para crear un supervisor de prueba rápidamente
-router.get('/test-create', async (req, res, next) => {
-  try {
-    req.body = {
-      nombre: "Supervisor de Prueba",
-      email: `test${Math.floor(Math.random() * 1000)}@correo.com`,
-      password: "password123",
-      documento: Math.floor(Math.random() * 1000000000)
-    };
-    await registerSupervisor(req, res, next);
-  } catch (error) {
-    next(error);
-  }
-});
 
 router.post(
   '/',
@@ -65,7 +47,10 @@ router.post(
   loginSupervisor
 );
 
-// Rutas Privadas
 router.get('/profile', protect, getSupervisorProfile);
+
+// Google Drive Auth - Ruta ajustada a GOOGLE_REDIRECT_URI del usuario
+router.get('/google/auth/:id', getGoogleAuthUrl); 
+router.get('/google/callback', googleCallback);
 
 export default router;

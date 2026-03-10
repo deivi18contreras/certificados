@@ -16,12 +16,17 @@ const SupervisorSchema = new mongoose.Schema(
     password: {
       type: String,
       required: [true, "La contraseña es obligatoria"],
+      minlength: [6, "La contraseña debe tener al menos 6 caracteres"],
     },
     documento: {
-      type: Number,
-      required: [true, "El número de documento es obligatorio"],
+      type: String,
+      required: [true, "El documento es obligatorio"],
       unique: true,
     },
+    googleTokens: {
+      type: Object, // Almacena access_token, refresh_token, etc.
+      default: null
+    }
   },
   { timestamps: true }
 );

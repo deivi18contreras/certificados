@@ -1,16 +1,15 @@
 import Reporte from '../models/Reporte.js';
 import Contratista from '../models/Contratista.js';
-import { downloadPlanilla } from '../utils/scrapingService.js';
-import { uploadPlanillaToDrive } from '../utils/driveService.js';
+import Supervisor from '../models/Supervisor.js';
 
-// @desc    Obtener todos los reportes (General)
+// @desc    Obtener todos los reportes
 // @route   GET /api/reportes
 // @access  Public
 export const getReportes = async (req, res, next) => {
   try {
     const reportes = await Reporte.find()
-      .populate('contratistaId', 'nombres apellidos numeroDoc')
-      .populate('supervisorId', 'nombre email');
+      .populate('contratista', 'nombres apellidos numeroDocumento')
+      .populate('supervisor', 'nombre email');
     
     res.status(200).json({
       success: true,
@@ -21,7 +20,24 @@ export const getReportes = async (req, res, next) => {
   }
 };
 
-// ... (getSupervisorDashboard remains same)
+// @desc    Obtener Dashboard de un supervisor
+// @route   GET /api/reportes/dashboard/:supervisorId
+// @access  Public
+export const getSupervisorDashboard = async (req, res, next) => {
+  try {
+    const { supervisorId } = req.params;
+    const reportes = await Reporte.find({ supervisor: supervisorId })
+      .populate('contratista')
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      data: reportes
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 // @desc    Registrar un nuevo reporte (Contratista)
 // @route   POST /api/reportes
@@ -29,68 +45,37 @@ export const getReportes = async (req, res, next) => {
 export const registerReporte = async (req, res, next) => {
   try {
     const { 
-      numPlanilla, 
-      fechaPago, 
-      valorPagado, 
-      mesPagado, 
       contratistaId, 
       supervisorId, 
-      entidadPagadora 
+      operadorPago,
+      periodoPago,
+      datosOperador 
     } = req.body;
 
-    // 1. Crear el registro en la DB
+    // Verificar que existen
+    const contratista = await Contratista.findById(contratistaId);
+    if (!contratista) {
+      return res.status(404).json({ success: false, message: 'Contratista no encontrado' });
+    }
+
+    const supervisor = await Supervisor.findById(supervisorId);
+    if (!supervisor) {
+      return res.status(404).json({ success: false, message: 'Supervisor no encontrado' });
+    }
+
+    // Crear el registro en la DB
     const newReporte = await Reporte.create({
-      numPlanilla,
-      fechaPago,
-      valorPagado,
-      mesPagado,
-      contratistaId,
-      supervisorId,
-      entidadPagadora
+      contratista: contratistaId,
+      supervisor: supervisorId,
+      operadorPago,
+      periodoPago,
+      datosOperador,
+      status: 'Pendiente'
     });
-
-    // 2. Ejecutar procesos en segundo plano (Scraping y Drive)
-    // No usamos 'await' aquí para que la respuesta al cliente sea rápida, 
-    // pero manejamos errores internamente.
-    (async () => {
-      try {
-        const contratista = await Contratista.findById(contratistaId);
-        if (!contratista) return;
-
-        console.log(`Iniciando proceso para: ${contratista.nombres} ${contratista.apellidos}`);
-
-        // Simulación o ejecución de descarga
-        // Asegúrate de pasar datos suficientes para el scraper
-        const localPath = await downloadPlanilla({
-          entidadPagadora,
-          contratista: {
-            tipoDoc: contratista.tipoDoc,
-            numDocumento: contratista.numeroDoc,
-            expCedula: contratista.expCedula
-          },
-          numPlanilla,
-          fechaPago,
-          valorPagado,
-          mesPagado
-        });
-
-        // Subida a Drive
-        const year = new Date(fechaPago).getFullYear();
-        await uploadPlanillaToDrive(localPath, `Planilla_${numPlanilla}.pdf`, {
-          year,
-          month: mesPagado,
-          contractorName: `${contratista.nombres} ${contratista.apellidos}`
-        });
-
-        console.log('Proceso de automatización completado con éxito.');
-      } catch (err) {
-        console.error('Error en el proceso de automatización:', err.message);
-      }
-    })();
 
     res.status(201).json({
       success: true,
-      message: 'Reporte registrado exitosamente. El proceso de descarga y subida a Drive se ha iniciado en segundo plano.',
+      message: 'Reporte registrado exitosamente. El robot procesará su solicitud en unos minutos.',
       data: newReporte
     });
   } catch (error) {

@@ -7,6 +7,7 @@ import supervisorRoutes from './src/routes/supervisorRoutes.js';
 import contratistaRoutes from './src/routes/contratistaRoutes.js';
 import reporteRoutes from './src/routes/reporteRoutes.js';
 import errorMiddleware from './src/middlewares/errorMiddleware.js';
+import { initCron } from './src/utils/ScraperCron.js';
 
 // Carga de variables de entorno
 dotenv.config();
@@ -16,6 +17,9 @@ const app = express();
 
 // Conectar a la base de datos
 dbConnect();
+
+// Iniciar Robot de Scraping (Cron Job) cada 5 minutos
+initCron();
 
 // Middlewares
 app.use(cors());
