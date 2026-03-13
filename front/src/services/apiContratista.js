@@ -5,6 +5,11 @@ const getContratistas = async () => {
   return data
 }
 
+const getContratistaByDoc = async (numeroDoc) => {
+  const { data } = await axios.get(`/contratistas/documento/${numeroDoc}`)
+  return data
+}
+
 const registerContratista = async (contratistaData) => {
   const { data } = await axios.post('/contratistas', contratistaData)
   return data
@@ -17,6 +22,7 @@ const updateContratista = async (id, contratistaData) => {
 
 export {
   getContratistas,
+  getContratistaByDoc,
   registerContratista,
   updateContratista
 }

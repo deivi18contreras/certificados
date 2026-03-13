@@ -34,8 +34,8 @@ export const downloadPlanilla = async (reporte) => {
   console.log(`🚀 Iniciando Playwright para ${operadorPago}...`);
   
   const browser = await chromium.launch({
-    headless: false, // Cambiar a true en producción
-    args: ['--disable-blink-features=AutomationControlled']
+    headless: false,
+    args: ['--disable-blink-features=AutomationControlled', '--no-sandbox']
   });
 
   const context = await browser.newContext({
@@ -43,23 +43,33 @@ export const downloadPlanilla = async (reporte) => {
     viewport: { width: 1280, height: 720 }
   });
 
+  // Timeout global de 2 minutos para todo el proceso
   const page = await context.newPage();
-  page.setDefaultTimeout(60000);
+  page.setDefaultTimeout(45000); // 45 segundos por acción
+  page.setDefaultNavigationTimeout(60000);
 
   try {
     let filePath = '';
     const normalizedOperador = operadorPago.toLowerCase();
 
-    if (normalizedOperador.includes('aportes')) {
-      filePath = await scrapeAportesEnLinea(page, { contratista, periodoPago });
-    } else if (normalizedOperador.includes('compensar')) {
-      filePath = await scrapeCompensar(page, { contratista, datosOperador });
-    } else if (normalizedOperador.includes('soi')) {
-      filePath = await scrapeSOI(page, { contratista, periodoPago });
-    } else {
-      throw new Error(`Operador ${operadorPago} no soportado aún en la migración.`);
-    }
+    // Envoltura con timeout de seguridad total
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Tiempo de espera agotado (Timeout Global 2min)')), 120000)
+    );
 
+    const scrapingTask = (async () => {
+        if (normalizedOperador.includes('aportes')) {
+          return await scrapeAportesEnLinea(page, { contratista, periodoPago });
+        } else if (normalizedOperador.includes('compensar')) {
+          return await scrapeCompensar(page, { contratista, datosOperador });
+        } else if (normalizedOperador.includes('soi')) {
+          return await scrapeSOI(page, { contratista, periodoPago });
+        } else {
+          throw new Error(`Operador ${operadorPago} no soportado.`);
+        }
+    })();
+
+    filePath = await Promise.race([scrapingTask, timeoutPromise]);
     return filePath;
   } catch (error) {
     console.error(`❌ Error en Playwright (${operadorPago}):`, error.message);

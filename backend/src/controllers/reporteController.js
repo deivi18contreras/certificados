@@ -1,6 +1,7 @@
 import Reporte from '../models/Reporte.js';
 import Contratista from '../models/Contratista.js';
 import Supervisor from '../models/Supervisor.js';
+import { processSingleReport } from '../utils/reportProcessor.js';
 
 // @desc    Obtener todos los reportes
 // @route   GET /api/reportes
@@ -47,7 +48,7 @@ export const registerReporte = async (req, res, next) => {
     const { 
       contratistaId, 
       supervisorId, 
-      entidadPagadora, // Viene del front como entidadPagadora
+      entidadPagadora, 
       mesPagado,
       anio,
       numPlanilla,
@@ -55,7 +56,6 @@ export const registerReporte = async (req, res, next) => {
       fechaPago
     } = req.body;
 
-    // Mapeo de operador para que coincida con el enum del backend
     const mapOperadores = {
       'aportesenlinea': 'Aportes en Línea',
       'compensar': 'Compensar MiPlanilla',
@@ -66,26 +66,17 @@ export const registerReporte = async (req, res, next) => {
 
     const operadorFinal = mapOperadores[entidadPagadora.toLowerCase()] || entidadPagadora;
 
-    // Verificar que existen
     const contratista = await Contratista.findById(contratistaId);
-    if (!contratista) {
-      return res.status(404).json({ success: false, message: 'Contratista no encontrado' });
-    }
+    if (!contratista) return res.status(404).json({ success: false, message: 'Contratista no encontrado' });
 
     const supervisor = await Supervisor.findById(supervisorId);
-    if (!supervisor) {
-      return res.status(404).json({ success: false, message: 'Supervisor no encontrado' });
-    }
+    if (!supervisor) return res.status(404).json({ success: false, message: 'Supervisor no encontrado' });
 
-    // Crear el registro en la DB con la estructura del modelo
     const newReporte = await Reporte.create({
       contratista: contratistaId,
       supervisor: supervisorId,
       operadorPago: operadorFinal,
-      periodoPago: { 
-        mes: mesPagado, 
-        anio: anio.toString() 
-      },
+      periodoPago: { mes: mesPagado, anio: anio.toString() },
       datosOperador: {
         numeroPlanilla: numPlanilla,
         valorPagado: valorPagado,
@@ -94,9 +85,16 @@ export const registerReporte = async (req, res, next) => {
       status: 'Pendiente'
     });
 
+    // DISPARAR EL PROCESO INMEDIATAMENTE
+    console.log(`🚀 [Reporte] Iniciando proceso inmediato para ${newReporte._id}`);
+    
+    processSingleReport(newReporte._id).catch(err => {
+        console.error(`❌ Error en el proceso inmediato de reporte ${newReporte._id}:`, err.message);
+    });
+
     res.status(201).json({
       success: true,
-      message: 'Reporte registrado exitosamente. El robot procesará su solicitud en unos minutos.',
+      message: 'Reporte registrado y proceso de descarga iniciado.',
       data: newReporte
     });
   } catch (error) {
