@@ -1,3 +1,1 @@
-```
-d4f4e5c4e4eb06a1c6c82026c03b4532
-```
+<https://2captcha.com/>
