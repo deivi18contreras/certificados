@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { loginSupervisor, createTestSupervisor } from '@/services/apiSupervisor'
+import { loginSupervisor } from '@/services/apiSupervisor'
 import { useQuasar } from 'quasar'
 
 const $q = useQuasar()
@@ -29,32 +29,6 @@ const handleLogin = async () => {
     }
   } catch (error) {
     $q.notify({ type: 'negative', message: 'Credenciales inválidas o error de conexión' })
-  } finally {
-    loading.value = false
-  }
-}
-
-const handleTestLogin = async () => {
-  loading.value = true
-  try {
-    const createRes = await createTestSupervisor()
-    if (createRes.success) {
-      // Usar las credenciales recién creadas
-      const { email: testEmail } = createRes.data
-      const response = await loginSupervisor({ email: testEmail, password: 'password123' })
-      
-      if (response.success) {
-        authStore.login(response.data, response.token)
-        $q.notify({ 
-          type: 'positive', 
-          message: `Supervisor de prueba: ${testEmail}`,
-          caption: 'Logueado correctamente'
-        })
-        router.push({ name: 'permisos' })
-      }
-    }
-  } catch (error) {
-    $q.notify({ type: 'negative', message: 'Error al crear/loguear supervisor de prueba' })
   } finally {
     loading.value = false
   }
@@ -103,17 +77,6 @@ const handleTestLogin = async () => {
           <span v-else>Entrar</span>
         </button>
       </form>
-
-      <div class="text-center q-mt-xl">
-        <div class="separator-text">O</div>
-        <button 
-          class="btn btn-outline full-width q-mt-md" 
-          @click="handleTestLogin"
-          :disabled="loading"
-        >
-          Entrar como supervisor de prueba
-        </button>
-      </div>
     </div>
   </div>
 </template>
@@ -157,36 +120,11 @@ const handleTestLogin = async () => {
   padding-bottom: 2rem;
 }
 
-.q-mt-xl {
-  margin-top: 2.5rem;
-}
-
-.q-mt-md {
-  margin-top: 1rem;
-}
-
 .text-center {
   text-align: center;
 }
 
 .full-width {
   width: 100%;
-}
-
-.separator-text {
-  display: flex;
-  align-items: center;
-  color: #888;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.separator-text::before,
-.separator-text::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background-color: var(--sena-gray-medium);
-  margin: 0 1rem;
 }
 </style>
