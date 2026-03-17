@@ -28,10 +28,16 @@ router.post(
   [
     check('contratistaId', 'El ID del contratista es obligatorio').notEmpty().isMongoId(),
     check('supervisorId', 'El ID del supervisor es obligatorio').notEmpty().isMongoId(),
+<<<<<<< HEAD
     check('operadorPago', 'El operador de pago es obligatorio').notEmpty(),
     check('periodoPago', 'El periodo de pago (mes y año) es obligatorio').isObject(),
     check('periodoPago.mes', 'El mes es obligatorio').notEmpty(),
     check('periodoPago.anio', 'El año es obligatorio').notEmpty(),
+=======
+    check('entidadPagadora', 'El operador de pago es obligatorio').notEmpty(),
+    check('mesPagado', 'El mes es obligatorio').notEmpty(),
+    check('anio', 'El año es obligatorio').notEmpty(),
+>>>>>>> 64a23765abc45485dc75a2b30e320819c64f389c
     validateRequest,
   ],
   registerReporte

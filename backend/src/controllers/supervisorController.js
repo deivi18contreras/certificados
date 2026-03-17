@@ -19,7 +19,14 @@ const generateToken = (id) => {
 export const getSupervisors = async (req, res, next) => {
   try {
     const supervisors = await Supervisor.find().select('-password');
+<<<<<<< HEAD
     res.status(200).json(supervisors);
+=======
+    res.status(200).json({
+      success: true,
+      data: supervisors
+    });
+>>>>>>> 64a23765abc45485dc75a2b30e320819c64f389c
   } catch (error) {
     next(error);
   }
@@ -61,8 +68,18 @@ export const loginSupervisor = async (req, res, next) => {
 
     if (supervisor && (await bcrypt.compare(password, supervisor.password))) {
       res.status(200).json({
+<<<<<<< HEAD
         token: generateToken(supervisor._id),
         supervisor: { id: supervisor._id, nombre: supervisor.nombre, email: supervisor.email }
+=======
+        success: true,
+        token: generateToken(supervisor._id),
+        data: { 
+          id: supervisor._id, 
+          nombre: supervisor.nombre, 
+          email: supervisor.email 
+        }
+>>>>>>> 64a23765abc45485dc75a2b30e320819c64f389c
       });
     } else {
       const error = new Error('Credenciales inválidas');

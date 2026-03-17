@@ -25,7 +25,11 @@ const ContratistaSchema = new mongoose.Schema(
     },
     fechaExpedicion: {
       type: Date,
+<<<<<<< HEAD
       required: [true, "La fecha de expedición es obligatoria"]
+=======
+      required: false
+>>>>>>> 64a23765abc45485dc75a2b30e320819c64f389c
     },
     eps: {
       type: String,

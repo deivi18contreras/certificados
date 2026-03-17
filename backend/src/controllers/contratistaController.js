@@ -23,17 +23,35 @@ export const registerContratista = async (req, res, next) => {
     const { 
       nombres, 
       apellidos, 
+<<<<<<< HEAD
       tipoDocumento, 
       numeroDocumento, 
       eps, 
       fechaExpedicion 
     } = req.body;
 
+=======
+      tipoDoc, // Del front
+      numeroDoc, // Del front
+      eps, 
+      expCedula // Del front
+    } = req.body;
+
+    const tipoDocumento = tipoDoc;
+    const numeroDocumento = numeroDoc;
+    const fechaExpedicion = expCedula;
+
+>>>>>>> 64a23765abc45485dc75a2b30e320819c64f389c
     const existingContratista = await Contratista.findOne({ numeroDocumento });
     if (existingContratista) {
       return res.status(400).json({
         success: false,
+<<<<<<< HEAD
         message: 'El contratista con este número de documento ya existe'
+=======
+        message: 'El contratista con este número de documento ya existe',
+        data: existingContratista // Devolver el existente para que el front lo use
+>>>>>>> 64a23765abc45485dc75a2b30e320819c64f389c
       });
     }
 

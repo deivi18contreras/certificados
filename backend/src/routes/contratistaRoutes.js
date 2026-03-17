@@ -33,8 +33,13 @@ router.post(
   [
     check('nombres', 'El nombre es obligatorio').notEmpty().trim(),
     check('apellidos', 'El apellido es obligatorio').notEmpty().trim(),
+<<<<<<< HEAD
     check('tipoDocumento', 'El tipo de documento es obligatorio').notEmpty(),
     check('numeroDocumento', 'El número de documento debe ser numérico').isNumeric(),
+=======
+    check('tipoDoc', 'El tipo de documento es obligatorio').notEmpty(),
+    check('numeroDoc', 'El número de documento debe ser numérico').notEmpty(),
+>>>>>>> 64a23765abc45485dc75a2b30e320819c64f389c
     check('eps', 'La EPS es obligatoria').notEmpty().trim(),
     validateRequest,
   ],

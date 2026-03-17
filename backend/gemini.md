@@ -1,82 +1,49 @@
+# ⚙️ Backend - Gestión de Certificados y Scraping Automático
 
-<project_overview>
-El Sistema de Registro de Planillas de Pago es una solución diseñada para automatizar el control de prestaciones sociales de los contratistas del SENA (Centro Agroturístico San Gil). El flujo principal consiste en:
+Este sistema backend es el motor central encargado de automatizar la gestión, validación y almacenamiento de planillas de seguridad social para contratistas.
 
-El contratista registra los datos de su planilla y selecciona un supervisor.
+## 🎯 Propósito Principal
+Automatizar el ciclo de vida de los certificados de seguridad social: desde la solicitud del contratista, pasando por el scraping automático en los operadores de pago, hasta el almacenamiento final en Google Drive para la revisión del supervisor.
 
-El sistema realiza web scraping automatizado (resolviendo captchas) para descargar la planilla de la entidad pagadora.
+## 🏗️ Arquitectura del Sistema
 
-El archivo se guarda automáticamente en el Google Drive del supervisor con la estructura: reporte entidades / [Año] / [Mes de registro] / [Nombre Contratista].pdf.
-</project_overview>
+### 1. 🤖 Agente de Scraping (`src/agente/`)
+El corazón del sistema, modularizado para una escalabilidad limpia:
+- **`scrapingService.js` (Orquestador)**: Recibe las solicitudes de descarga y delega la tarea al scraper específico según el operador de pago.
+- **`soiScraper.js`**: Automatiza la descarga de PDFs desde el portal SOI (NuevoSOI).
+- **`miplanillaScraper.js`**: Realiza consultas y toma capturas de pantalla de validación en MiPlanilla (Compensar).
+- **`scrapingUtils.js`**: Gestor central de rutas de descarga, conversión de formatos de fecha y descompresión de archivos ZIP/PDF.
 
-<tech_stack>
+### 2. 📁 Gestión de Archivos (`src/descargas/`)
+Los archivos se organizan dinámicamente en subcarpetas según el operador:
+- `descargas/soi/` -> PDFs finales.
+- `descargas/miplanilla/` -> Capturas de validación.
+- `descargas/aportes/` -> Preparado para Aportes en Línea.
+- `descargas/asopagos/` -> Preparado para Asopagos.
 
-Runtime: Node.js (LTS).
+### 3. 📊 Modelos de Datos (`src/models/`)
+- **Contratista**: Información personal, EPS, tipo/número de documento.
+- **Supervisor**: Perfil del encargado de validar los reportes.
+- **Reporte**: Estado del trámite, operador de pago, periodo (mes/año) y rutas a los archivos generados.
 
-Lenguaje: JavaScript (ES6+) - No TypeScript.
+### 4. 🛰️ Integraciones Externas (`src/utils/`)
+- **2Captcha**: Resolución automatizada de reCAPTCHA v2 y captchas de imagen (4-6 caracteres).
+- **Google Drive API (`driveService.js`)**: Sincronización automática de los archivos descargados a carpetas compartidas en la nube.
+- **ScraperCron (`ScraperCron.js`)**: Programación de tareas automáticas para procesar reportes pendientes.
 
-Framework: Express.js.
+## 🛠️ Stack Tecnológico
+- **Entorno**: Node.js (ES Modules)
+- **Framework**: Express.js
+- **Base de Datos**: MongoDB con Mongoose.
+- **Automatización**: Playwright Extra con Stealth Plugin.
+- **Seguridad**: Autenticación vía JWT y encriptación de claves con BcryptJS.
 
-ORM: Mongoose (MongoDB Atlas).
+## 📡 Endpoints Principales
+- `/api/contratistas`: CRUD y gestión de perfiles de contratistas.
+- `/api/reportes`: Registro de nuevas planillas y consulta de estados de descarga.
+- `/api/supervisores`: Lógica para la revisión y aprobación de certificados.
 
-Arquitectura: API REST con módulos ESM (import/export).
-</tech_stack>
-
-
-<coding_standards>
-
-Funciones: Preferir Arrow Functions (const miFuncion = () => {}) para middlewares y utilidades.
-
-Asincronía: Usar estrictamente async/await.
-
-Variables: Usar const por defecto; camelCase para nombres.
-
-Errores: Bloques try/catch en controladores pasando el error a next(error).
-
-Modelos: Nombres en Singular y PascalCase; incluir timestamps: true.
-</coding_standards>
-
-<folder_structure>
-
-/src/config: Configuración de DB y variables de entorno.
-
-/src/models: Esquemas de Mongoose.
-
-/src/controllers: Lógica de negocio.
-
-/src/routes: Endpoints de Express.
-
-/src/middlewares: Funciones de validación y auth.
-
-/src/utils: Funciones de ayuda (Scraping, Drive API).
-</folder_structure>
-
-<database_models>
-
-Contratista (Contratista.js)
-
-Campos: nombres, apellidos, tipoDoc, numeroDoc, eps, expCedula.
-
-Supervisor (Supervisor.js)
-
-Campos: nombre, email (único), password, documento (único).
-
-Reporte (Reporte.js)
-
-Campos: numPlanilla, fechaPago, mesPagado (enum), entidadPagadora (enum).
-
-Relaciones: - contratistaId: Referencia al modelo Contratista.
-
-supervisorId: Referencia al modelo Supervisor.
-</database_models>
-
-<functional_requirements>
-
-Gestión de Usuarios: Registro/Auth de supervisores con correo válido y registro de datos de contratistas.
-
-Integración Drive: Vinculación mediante Google Drive API para almacenamiento.
-
-Automatización: Navegación interna para descarga de soportes y resolución de captchas.
-
-Dashboard: Visualización de datos procesados para el supervisor según los mockups.
-</functional_requirements>
+## 🔧 Configuración y Ejecución
+- **Entorno**: Requiere un archivo `.env` con las claves de MongoDB, 2Captcha, Google Drive y JWT.
+- **Modo Desarrollo**: `npm run dev` (vía nodemon).
+- **Pruebas del Agente**: `node verificar-agente.js [soi|compensar]` para validar los scrapers de forma aislada.

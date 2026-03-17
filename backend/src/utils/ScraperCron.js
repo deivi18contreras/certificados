@@ -1,8 +1,12 @@
 import cron from 'node-cron';
 import Reporte from '../models/Reporte.js';
+<<<<<<< HEAD
 import { downloadPlanilla } from './scrapingService.js';
 import { uploadToDrive } from './driveService.js';
 import fs from 'fs';
+=======
+import { processSingleReport } from './reportProcessor.js';
+>>>>>>> 64a23765abc45485dc75a2b30e320819c64f389c
 
 /**
  * @desc    Procesa los reportes pendientes uno por uno.
@@ -12,10 +16,18 @@ export const processPendingReports = async () => {
   
   try {
     // Buscar reportes con status 'Pendiente' o 'Error' con menos de 3 intentos
+<<<<<<< HEAD
     const pendingReports = await Reporte.find({
       status: { $in: ['Pendiente', 'Error'] },
       intentos: { $lt: 3 }
     }).populate('contratista').populate('supervisor');
+=======
+    // Evitamos los que ya están 'Procesando' para no duplicar Playwright
+    const pendingReports = await Reporte.find({
+      status: { $in: ['Pendiente', 'Error'] },
+      intentos: { $lt: 3 }
+    });
+>>>>>>> 64a23765abc45485dc75a2b30e320819c64f389c
 
     if (pendingReports.length === 0) {
       console.log('💤 No hay reportes pendientes.');
@@ -26,6 +38,7 @@ export const processPendingReports = async () => {
 
     for (const reporte of pendingReports) {
       try {
+<<<<<<< HEAD
         console.log(`▶️ Procesando: ${reporte.contratista.nombres} (${reporte.operadorPago})`);
         
         // Marcar como procesando e incrementar intentos
@@ -63,6 +76,13 @@ export const processPendingReports = async () => {
         reporte.status = 'Error';
         reporte.errorLog = error.message;
         await reporte.save();
+=======
+        // Usamos la utilidad centralizada
+        await processSingleReport(reporte._id);
+      } catch (error) {
+        // El error ya se maneja y guarda dentro de processSingleReport
+        console.error(`❌ Fallo en el robot para reporte ${reporte._id}:`, error.message);
+>>>>>>> 64a23765abc45485dc75a2b30e320819c64f389c
       }
     }
 
@@ -77,11 +97,18 @@ export const processPendingReports = async () => {
 export const initCron = () => {
   console.log('🚀 Sistema de Cron iniciado (Intervalo: 5 minutos)');
   
+<<<<<<< HEAD
   // '*/5 * * * *' -> Cada 5 minutos
+=======
+>>>>>>> 64a23765abc45485dc75a2b30e320819c64f389c
   cron.schedule('*/5 * * * *', () => {
     processPendingReports();
   });
 
+<<<<<<< HEAD
   // Ejecución inicial diferida para asegurar que la DB esté lista
+=======
+  // Ejecución inicial diferida
+>>>>>>> 64a23765abc45485dc75a2b30e320819c64f389c
   setTimeout(processPendingReports, 5000);
 };
