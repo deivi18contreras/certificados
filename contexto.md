@@ -1,50 +1,72 @@
-Hoy ha sido una jornada de optimización profunda y automatización
-  avanzada. Aquí tienes el resumen de las mejoras implementadas:
+ He analizado el código y los tests, y aquí tienes
+  el resumen del estado actual de los scrapers:
+
+  Resumen del Código y Estado de los Operadores
 
 
-  1. Frontend (Registro de Planillas)
-   * Interfaz Progresiva: Rediseñé el formulario para que solo pida la
-     identificación al inicio. Los demás campos aparecen con un efecto
-     fade-in solo tras verificar si el contratista existe.
-   * Búsqueda Inteligente: Añadí un botón de lupa 🔍 y soporte para la
-     tecla Enter que consulta al backend en tiempo real.
-   * Autocompletado: Si el contratista ya está registrado, el sistema
-     carga automáticamente sus nombres, apellidos y EPS (normalizando
-     los nombres para que coincidan con los desplegables).
-   * Limpieza Estética: Eliminé botones innecesarios (como "Entrar como
-     supervisor de prueba" y "Cambiar Cédula") para dejar un flujo más
-     profesional y directo.
+  Actualmente, el sistema está utilizando
+  Playwright con el plugin de Stealth para realizar
+  el scraping de los operadores de pago de
+  seguridad social. Se utiliza el servicio 2Captcha
+  para resolver los reCAPTCHAs de Google.
 
 
-  2. Backend (Arquitectura y Control)
-   * Procesamiento Inmediato: Modifiqué el controlador de reportes para
-     que el robot inicie la descarga de Playwright en el mismo instante
-     en que le das a "Registrar", sin esperar al cron.
-   * Utilidad Centralizada: Creé reportProcessor.js para unificar la
-     lógica de descarga y subida a Drive, evitando duplicidad de código
-     entre el controlador y el robot de reintentos.
-   * Ruta de Consulta: Implementé un nuevo endpoint
-     /documento/:numeroDocumento en contratistas para facilitar la
-     búsqueda desde el front.
+  1. SOI (Funciona ✅)
+   * Lógica: Navega a la página de certificados de 
+     SOI, completa los datos del aportante y       
+     cotizante, selecciona la EPS y el periodo.    
+   * Resultado: Descarga exitosamente el archivo   
+     PDF de la planilla.
+   * Estado: Totalmente operativo.
 
 
-  3. Automatización (Playwright + 2captcha)
-   * Integración de 2captcha: Instalé y configuré la librería oficial
-     para resolver captchas automáticamente en Aportes en Línea,
-     Compensar e incluso de forma preventiva en SOI.
-   * Resolución de reCAPTCHA V2: El robot ahora extrae el sitekey,
-     obtiene el token de 2captcha y lo inyecta directamente en el
-     navegador de forma invisible.
-   * Robustez y Timeouts: Añadí un "Timeout Global" de 2 minutos y
-     esperas activas (waitForSelector) para asegurar que el robot no se
-     quede trabado si una página carga lento o el captcha tarda en
-     aparecer.
-   * Persistencia Local: Configuré el sistema para que las descargas se
-     conserven en temp_downloads, permitiéndote verificar los PDF
-     descargados manualmente.
+  2. Compensar / MiPlanilla (Funciona con captura
+  ✅📸)
+   * Lógica: Navega a la consulta de pagos de
+     MiPlanilla. Requiere datos adicionales: Número
+     de Planilla, Valor Pagado y Fecha de Pago.
+   * Resultado: Actualmente genera una captura de
+     pantalla (PNG) de la consulta exitosa en lugar
+     de un PDF descargable. Esto se debe a la
+     estructura de la página de MiPlanilla que
+     facilita la visualización pero complica la
+     descarga directa del PDF sin sesión.
+   * Estado: Operativo para validación visual.
 
 
-  Resultado: El sistema pasó de ser un proceso manual/por lotes a una
-  plataforma autónoma donde el usuario solo ingresa su cédula y el
-  robot se encarga de todo lo demás en segundos. 🚀🤖
+  3. Aportes en Línea (Implementado ✅)
+   * Lógica: Utiliza reCAPTCHA v2 y requiere la    
+     fecha de expedición del documento y la EPS del
+     contratista.
+   * Resultado: Descarga un archivo PDF.
 
+
+  4. Asopagos / Enlace-APB (En
+  desarrollo/Captura ⚠️📸)
+   * Lógica: Navega por el portal de Enlace-APB
+     hasta la sección de "Reporte de pago sin
+     valores".
+   * Resultado: Al igual que Compensar, actualmente
+     toma una captura de pantalla de verificación.
+
+
+  Arquitectura General
+   * Backend: Node.js con Express y MongoDB. Los
+     procesos de scraping se ejecutan de forma
+     asíncrona mediante scrapingService.js.
+   * Frontend: Aplicación en Vue.js con Quasar
+     Framework. Permite a los contratistas
+     registrar su planilla seleccionando el 
+     
+     operador y el periodo.
+   * Automatización: El sistema está diseñado para
+     que un Cron (ScraperCron.js) o una acción
+     directa del usuario dispare el proceso de
+     descarga y posterior subida a Google Drive
+     (driveService.js).
+
+
+  ¿Te gustaría que intente cambiar el
+  comportamiento de Compensar para que intente     
+  descargar el PDF en lugar de tomar una captura, o
+  prefieres trabajar en algún otro operador?

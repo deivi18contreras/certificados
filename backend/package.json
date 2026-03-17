@@ -12,6 +12,7 @@
   "dependencies": {
     "2captcha": "^3.0.5-2",
     "adm-zip": "^0.5.16",
+    "axios": "^1.13.6",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",

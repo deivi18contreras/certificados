@@ -117,7 +117,7 @@ const handleSubmit = async () => {
       numPlanilla: isCompensar.value ? form.value.numPlanilla : "0", 
       mesPagado: form.value.mesPagado,
       anio: form.value.anio.toString(),
-      valorPagado: isCompensar.value ? form.value.valorPagado : 0,
+      valorPagado: isCompensar.value ? form.value.valorPagado.toString() : "0",
       fechaPago: isCompensar.value ? form.value.fechaPago : `${form.value.anio}-01-01`, 
       contratistaId: contratistaId,
       supervisorId: form.value.supervisorId.value,
