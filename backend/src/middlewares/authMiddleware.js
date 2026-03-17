@@ -24,18 +24,16 @@ const protect = async (req, res, next) => {
         throw error;
       }
 
-      next();
+      return next();
     } catch (err) {
       console.error('*** Error en autenticación:', err.message);
-      res.status(401).json({
+      return res.status(401).json({
         success: false,
         message: 'No autorizado, token fallido',
       });
     }
-  }
-
-  if (!token) {
-    res.status(401).json({
+  } else {
+    return res.status(401).json({
       success: false,
       message: 'No autorizado, no se proporcionó token',
     });

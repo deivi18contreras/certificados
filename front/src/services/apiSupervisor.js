@@ -15,14 +15,9 @@ const getSupervisors = async () => {
   return data
 }
 
-const createTestSupervisor = async () => {
-  const { data } = await axios.get('/supervisors/test-create')
-  return data
-}
-
 export {
   loginSupervisor,
   getSupervisorProfile,
-  getSupervisors,
-  createTestSupervisor
+  getSupervisors
 }
+

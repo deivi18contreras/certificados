@@ -1,19 +1,37 @@
 <script setup>
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import { useQuasar } from 'quasar'
+import axios from '@/services/axios'
 
 const $q = useQuasar()
 const router = useRouter()
+const authStore = useAuthStore()
 
-const handleGrantPermissions = () => {
+const handleGrantPermissions = async () => {
   $q.loading.show({ message: 'Conectando con Google API...' })
   
-  // Simulación de autenticación con Google
-  setTimeout(() => {
+  try {
+    const supervisorId = authStore.user?.id
+    if (!supervisorId) {
+      $q.notify({ type: 'negative', message: 'No se encontró el ID del supervisor' })
+      return
+    }
+
+    const { data } = await axios.get(`/supervisors/google/auth/${supervisorId}`)
+    
+    if (data.url) {
+      // Redirigir al usuario a Google para autorizar
+      window.location.href = data.url
+    } else {
+      $q.notify({ type: 'negative', message: 'No se obtuvo URL de autorización' })
+    }
+  } catch (error) {
+    console.error('Error conectando con Google:', error)
+    $q.notify({ type: 'negative', message: 'Error al conectar con Google Drive. Verifique la configuración.' })
+  } finally {
     $q.loading.hide()
-    $q.notify({ type: 'positive', message: 'Permisos concedidos exitosamente' })
-    router.push({ name: 'dashboard' })
-  }, 2000)
+  }
 }
 </script>
 

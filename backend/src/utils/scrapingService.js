@@ -13,8 +13,10 @@ export const downloadPlanilla = async (reporte) => {
   const { operadorPago } = reporte;
   console.log(`🚀 [Agente] Iniciando proceso para: ${operadorPago}`);
   
+  const isHeadless = process.env.HEADLESS === 'true';
+  
   const browser = await chromium.launch({
-    headless: false,
+    headless: isHeadless,
     args: ['--disable-blink-features=AutomationControlled', '--no-sandbox']
   });
 

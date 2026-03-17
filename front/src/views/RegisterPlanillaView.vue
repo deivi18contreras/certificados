@@ -33,7 +33,7 @@ const form = ref({
   anio: currentYear,
   valorPagado: '',
   fechaPago: '',
-  supervisorId: null,
+  supervisorId: '',
   entidadPagadora: ''
 })
 
@@ -120,7 +120,7 @@ const handleSubmit = async () => {
       valorPagado: isCompensar.value ? form.value.valorPagado.toString() : "0",
       fechaPago: isCompensar.value ? form.value.fechaPago : `${form.value.anio}-01-01`, 
       contratistaId: contratistaId,
-      supervisorId: form.value.supervisorId.value,
+      supervisorId: form.value.supervisorId,
       entidadPagadora: entidadNormalizada
     })
 
@@ -263,8 +263,8 @@ onMounted(() => {
               <div class="form-group">
                 <label>Asignar Supervisor</label>
                 <select v-model="form.supervisorId" class="form-input" required>
-                  <option :value="null" disabled selected>Seleccione un supervisor</option>
-                  <option v-for="opt in supervisors" :key="opt.value" :value="opt">{{ opt.label }}</option>
+                  <option value="" disabled selected>Seleccione un supervisor</option>
+                  <option v-for="opt in supervisors" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
                 </select>
               </div>
             </template>
