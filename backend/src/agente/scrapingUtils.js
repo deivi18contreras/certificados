@@ -33,11 +33,11 @@ export const getOperatorPath = (prefix) => {
 
 export const monthToNumber = (monthName) => {
   const months = {
-    'enero': '1', 'febrero': '2', 'marzo': '3', 'abril': '4',
-    'mayo': '5', 'junio': '6', 'julio': '7', 'agosto': '8',
-    'septiembre': '9', 'octubre': '10', 'noviembre': '11', 'diciembre': '12'
+    'enero': '01', 'febrero': '02', 'marzo': '03', 'abril': '04',
+    'mayo': '05', 'junio': '06', 'julio': '07', 'agosto': '08',
+    'septiembre': '09', 'octubre': '10', 'noviembre': '11', 'diciembre': '12'
   };
-  return months[monthName.toLowerCase()] || '1';
+  return months[monthName.toLowerCase()] || '01';
 };
 
 /**

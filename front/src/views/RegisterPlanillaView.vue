@@ -121,7 +121,9 @@ const handleSubmit = async () => {
       fechaPago: isCompensar.value ? form.value.fechaPago : `${form.value.anio}-01-01`, 
       contratistaId: contratistaId,
       supervisorId: form.value.supervisorId,
-      entidadPagadora: entidadNormalizada
+      entidadPagadora: entidadNormalizada,
+      eps: form.value.eps, // Enviar EPS actual
+      expCedula: form.value.expCedula // Enviar Fecha Exp actual
     })
 
     if (resReporte.success) {

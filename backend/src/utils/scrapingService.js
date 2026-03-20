@@ -2,6 +2,8 @@ import { chromium } from 'playwright-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import { scrapeSOI } from '../agente/soiScraper.js';
 import { scrapeCompensar } from '../agente/miplanillaScraper.js';
+import { scrapeAsopagos } from '../agente/asopagosScraper.js';
+import { scrapeAportes } from '../agente/aportesScraper.js';
 
 // Configurar Stealth
 chromium.use(StealthPlugin());
@@ -36,9 +38,11 @@ export const downloadPlanilla = async (reporte) => {
     } else if (normalizedOperador.includes('soi')) {
       return await scrapeSOI(page, reporte);
     } else if (normalizedOperador.includes('asopagos') || normalizedOperador.includes('enlace')) {
-      const formUrl = 'https://www.enlace-apb.com/interssi/descargarCertificacionPago.jsp';
-      console.log(`🔗 [Agente] Link Asopagos: ${formUrl}`);
-      throw new Error('Asopagos en mantenimiento.');
+      console.log(`🔗 [Agente] Ejecutando scraper de Asopagos...`);
+      return await scrapeAsopagos(page, reporte);
+    } else if (normalizedOperador.includes('aportes')) {
+      console.log(`🔗 [Agente] Ejecutando scraper de Aportes en Línea...`);
+      return await scrapeAportes(page, reporte);
     } else {
       throw new Error(`Operador ${operadorPago} no soportado actualmente.`);
     }

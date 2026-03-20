@@ -70,3 +70,14 @@
   comportamiento de Compensar para que intente     
   descargar el PDF en lugar de tomar una captura, o
   prefieres trabajar en algún otro operador?
+
+  Correcciones Recientes (19 de Marzo, 2026)
+  ------------------------------------------
+  * Aportes en Línea (EPS Nueva): Se corrigió la selección de "Nueva EPS"
+    en el scraper. Ahora escribe "nueva" y busca específicamente el texto 
+    "NUEVA E.P.S." para evitar que seleccione erróneamente "MOVILIDAD".
+  * Frontend (Edición de EPS): Se eliminó la restricción que bloqueaba 
+    el campo de EPS, Nombres y Apellidos cuando el contratista ya existía. 
+    Ahora el usuario puede modificar estos campos si es necesario.
+  * Verificación: Se realizaron pruebas con el comando
+    `node backend/verificar-agente.js aportes`.

@@ -53,7 +53,9 @@ export const registerReporte = async (req, res, next) => {
       anio,
       numPlanilla,
       valorPagado,
-      fechaPago
+      fechaPago,
+      eps, // Nuevo: capturar EPS del front
+      expCedula // Nuevo: capturar fecha exp del front
     } = req.body;
 
     const mapOperadores = {
@@ -68,6 +70,11 @@ export const registerReporte = async (req, res, next) => {
 
     const contratista = await Contratista.findById(contratistaId);
     if (!contratista) return res.status(404).json({ success: false, message: 'Contratista no encontrado' });
+
+    // ACTUALIZAR DATOS SI VIENEN DEL FRONT (PARA SCRAPERS)
+    if (eps) contratista.eps = eps;
+    if (expCedula) contratista.fechaExpedicion = expCedula;
+    if (eps || expCedula) await contratista.save();
 
     const supervisor = await Supervisor.findById(supervisorId);
     if (!supervisor) return res.status(404).json({ success: false, message: 'Supervisor no encontrado' });
