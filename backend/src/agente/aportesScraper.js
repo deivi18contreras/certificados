@@ -27,70 +27,91 @@ export const scrapeAportes = async (page, { contratista, periodoPago, datosOpera
     await page.locator('#contenido_txtFechaExp').fill(dateStr);
   }
 
-  // 4. EPS (Autocomplete mejorado)
+  // 4. EPS (Autocomplete mejorado - Método Enter directo)
   if (contratista.eps) {
-    console.log(`🔍 [Aportes] Buscando EPS: ${contratista.eps}...`);
+    const epsText = contratista.eps.toUpperCase();
+    const isNuevaEPS = epsText.includes('NUEVA');
+    const isSanitas = epsText.includes('SANITAS');
+    
+    // Si es Sanitas, escribimos SANITAS; si es Nueva EPS, NUEVA
+    const textToType = isNuevaEPS ? 'NUEVA' : (isSanitas ? 'SANITAS' : contratista.eps);
+    console.log(`🔍 [Aportes] Buscando EPS: Escribiendo '${textToType}' y lanzando Enter inmediato...`);
+    
     const epsInput = page.locator('#contenido_txtAdmin');
-    await epsInput.fill('');
-    const textToType = contratista.eps;
-    await epsInput.type(textToType, { delay: 100 });
+    await epsInput.click({ clickCount: 3 });
+    await page.keyboard.press('Control+A');
+    await page.keyboard.press('Backspace');
+    await epsInput.type(textToType, { delay: 150 });
+    
     try {
-      console.log(`⏳ [Aportes] Esperando estabilidad del autocompletar...`);
-      await page.waitForTimeout(2000); // Dar tiempo real a que el DOM se actualice
-
-      // 1. Intentar clickear directamente por el texto que el usuario quiere
-      if (textToType.toLowerCase().includes('nueva')) {
-        const option = page.locator('.ui-menu-item, li').filter({ hasText: 'NUEVA E.P.S.' }).first();
-        if (await option.isVisible()) {
-          console.log(`🎯 [Aportes] Opción exacta encontrada: NUEVA E.P.S.`);
-          await option.click({ force: true });
-          console.log('✅ [Aportes] EPS seleccionada satisfactoriamente (Directo).');
-          return;
-        }
-      }
-
-      // 2. Fallback: Intentar con cualquier item visible
-      const fallbackOption = page.locator('li.ui-menu-item:visible, .ui-autocomplete-item:visible').first();
-      if (await fallbackOption.isVisible()) {
-        console.log(`🎯 [Aportes] Seleccionando primera opción visible disponible.`);
-        await fallbackOption.click({ force: true });
-        console.log('✅ [Aportes] EPS seleccionada satisfactoriamente (Fallback visible).');
-      } else {
-        throw new Error('No se encontraron opciones visibles');
-      }
-
-    } catch (err) {
-      console.warn(`⚠️ [Aportes] No se pudo seleccionar de la lista: ${err.message}`);
-      console.log('⌨️ [Aportes] Intentando con teclado (Enter directo)...');
-      // A veces no hace falta ArrowDown si ya está filtrado y el primero está "pseudo-seleccionado"
+      await page.waitForTimeout(2000); 
       await page.keyboard.press('Enter');
-      await page.waitForTimeout(500);
+      console.log(`✅ [Aportes] EPS '${textToType}' seleccionada satisfactoriamente.`);
+    } catch (err) {
+      console.warn(`⚠️ [Aportes] Error en autocompletar: ${err.message}.`);
     }
+    await page.waitForTimeout(1000);
   }
 
-  // 5. Rango de Fechas (Mismo mes solicitado por el usuario)
-  const anioIni = periodoPago.anio;
-  const mesIni = monthToNumber(periodoPago.mes);
+  // 5. Rango de Fechas (NUMÉRICO ESTRICTO)
+  const anioIni = periodoPago.anio.toString();
+  const mesNumRaw = monthToNumber(periodoPago.mes); 
+  const mesNumClean = parseInt(mesNumRaw).toString();
 
-  await page.locator('#contenido_ddlAnioIni').selectOption({ value: anioIni });
-  await page.locator('#contenido_ddlMesIni').selectOption({ value: mesIni });
-  await page.locator('#contenido_ddlAnioFin').selectOption({ value: anioIni });
-  await page.locator('#contenido_ddlMesFin').selectOption({ value: mesIni });
+  console.log(`📅 [Aportes] Configurando periodo: Mes ${mesNumRaw}/${mesNumClean} de ${anioIni}`);
+
+  await page.waitForSelector('#contenido_ddlAnioIni');
+  await page.locator('#contenido_ddlAnioIni').selectOption(anioIni);
+  await page.waitForTimeout(500);
+  
+  await page.locator('#contenido_ddlMesIni').selectOption(mesNumRaw).catch(() => 
+    page.locator('#contenido_ddlMesIni').selectOption(mesNumClean)
+  );
+  
+  await page.locator('#contenido_ddlAnioFin').selectOption(anioIni);
+  await page.waitForTimeout(500);
+  
+  await page.locator('#contenido_ddlMesFin').selectOption(mesNumRaw).catch(() => 
+    page.locator('#contenido_ddlMesFin').selectOption(mesNumClean)
+  );
 
   // 6. Cotizante Activo (Label as button)
   await page.locator('label.button:has-text("Cotizante activo")').click();
 
   // 7. reCAPTCHA
-  console.log('🧩 [Aportes] Resolviendo reCAPTCHA Enterprise...');
+  console.log('🧩 [Aportes] Identificando reCAPTCHA Enterprise...');
   try {
-    // Intentar obtener de .g-recaptcha o usar el hardcoded del usuario
-    let sitekey = await page.getAttribute('.g-recaptcha', 'data-sitekey').catch(() => null);
+    // 1. Esperar a que el widget sea visible o esté en el DOM
+    await page.waitForSelector('.g-recaptcha, [data-sitekey]', { timeout: 10000 }).catch(() => null);
+
+    // 2. Intentar obtener el sitekey de varias fuentes
+    let sitekey = await page.evaluate(() => {
+      const el = document.querySelector('.g-recaptcha') || document.querySelector('[data-sitekey]');
+      if (el) return el.getAttribute('data-sitekey');
+      
+      // Intentar buscar en el objeto window si ya se cargó grecaptcha
+      try {
+        if (window.___grecaptcha_cfg && window.___grecaptcha_cfg.clients) {
+          for (const key in window.___grecaptcha_cfg.clients) {
+            const client = window.___grecaptcha_cfg.clients[key];
+            for (const p in client) {
+              if (client[p] && client[p].sitekey) return client[p].sitekey;
+            }
+          }
+        }
+      } catch (e) {}
+      return null;
+    });
+
     if (!sitekey) {
       sitekey = '6Lc6FDMUAAAAAKwQX0_xF92Z1MiUXm4sYbQ6bh6J';
-      console.log('ℹ️ [Aportes] Usando sitekey de respaldo (Enterprise).');
+      console.log('ℹ️ [Aportes] No se detectó sitekey dinámico. Usando respaldo: ' + sitekey);
+    } else {
+      console.log('✅ [Aportes] Sitekey detectado: ' + sitekey);
     }
 
     const token = await solveRecaptchaV2(page.url(), sitekey, true);
+    console.log('💉 [Aportes] Inyectando token...');
     await page.evaluate((token) => {
       // 1. Inyectar en todos los campos posibles de recaptcha response
       const fields = document.querySelectorAll('[id^="g-recaptcha-response"]');

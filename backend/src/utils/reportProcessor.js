@@ -10,10 +10,13 @@ import path from 'path';
 export const processSingleReport = async (reporteId) => {
   const reporte = await Reporte.findById(reporteId).populate('contratista').populate('supervisor');
   if (!reporte) throw new Error('Reporte no encontrado');
+  if (!reporte.contratista) throw new Error('El reporte no tiene un contratista asociado válido');
+  if (!reporte.supervisor) throw new Error('El reporte no tiene un supervisor asociado válido');
 
   let localFilePath = '';
   try {
-    console.log(`🤖 [Processor] Iniciando descarga para: ${reporte.contratista.nombres} (${reporte.operadorPago})`);
+    const nombreCompleto = `${reporte.contratista.nombres || 'Sin'} ${reporte.contratista.apellidos || 'Nombre'}`;
+    console.log(`🤖 [Processor] Iniciando descarga para: ${nombreCompleto} (${reporte.operadorPago})`);
     
     reporte.status = 'Procesando';
     reporte.intentos += 1;

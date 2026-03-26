@@ -9,16 +9,13 @@ dotenv.config();
 
 const seedData = async () => {
   try {
-    const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/certificados';
+    const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/certificados_sena';
     await mongoose.connect(mongoUri);
     console.log('✅ Conectado a MongoDB para seeding...');
 
-    // Limpiar colecciones (Opcional, ten cuidado)
-    // await Contratista.deleteMany({});
-    // await Reporte.deleteMany({});
-    // await Supervisor.deleteMany({});
+    await Reporte.deleteMany({});
+    await Contratista.deleteMany({});
 
-    // 1. Crear Supervisor de ejemplo si no existe
     let supervisor = await Supervisor.findOne({ email: 'supervisor@sena.edu.co' });
     if (!supervisor) {
       const salt = await bcrypt.genSalt(10);
@@ -29,97 +26,57 @@ const seedData = async () => {
         password: hashedPassword,
         documento: '12345678',
       });
-      console.log('✅ Supervisor creado');
     }
 
-    // 2. Crear Contratistas basados en el PDF
-    const contratistasData = [
-      {
-        nombres: 'YURLEY TATIANA',
-        apellidos: 'BERNAL PORRAS',
-        tipoDocumento: 'CC',
-        numeroDocumento: '1100971354',
-        fechaExpedicion: new Date('2000-01-01'), // Fecha ficticia
-        eps: 'SANITAS'
-      },
-      {
-        nombres: 'MONICA YANETH',
-        apellidos: 'BARRERA BALLESTEROS',
-        tipoDocumento: 'CC',
-        numeroDocumento: '37898093',
-        fechaExpedicion: new Date('2000-01-01'),
-        eps: 'SANITAS'
-      },
-      {
-        nombres: 'LUIS EDUARDO',
-        apellidos: 'GONZALEZ SANCHEZ',
-        tipoDocumento: 'CC',
-        numeroDocumento: '79794241',
-        fechaExpedicion: new Date('2000-01-01'),
-        eps: 'NUEVA EPS'
-      }
-    ];
+    // 1. Miguel Angel Dulcey -> SANITAS para Aportes
+    const miguel = await Contratista.create({
+      nombres: 'MIGUEL ANGEL',
+      apellidos: 'DULCEY',
+      tipoDocumento: 'CC',
+      numeroDocumento: '91075655',
+      fechaExpedicion: new Date('1994-10-31'),
+      eps: 'SANITAS'
+    });
 
-    const savedContratistas = [];
-    for (const data of contratistasData) {
-      let c = await Contratista.findOne({ numeroDocumento: data.numeroDocumento });
-      if (!c) {
-        c = await Contratista.create(data);
-        console.log(`✅ Contratista ${data.nombres} creado`);
-      }
-      savedContratistas.push(c);
-    }
+    // 2. Monica Yaneth Barrera -> Compensar
+    const monica = await Contratista.create({
+      nombres: 'MONICA YANETH',
+      apellidos: 'BARRERA BALLESTEROS',
+      tipoDocumento: 'CC',
+      numeroDocumento: '37898093',
+      fechaExpedicion: new Date('2000-01-01'),
+      eps: 'SANITAS'
+    });
 
-    // 3. Crear Reportes basados en el PDF
     const reportesData = [
       {
-        contratista: savedContratistas[0]._id, // Yurley
-        supervisor: supervisor._id,
-        operadorPago: 'SOI',
-        periodoPago: { mes: 'enero', anio: '2026' },
-        datosOperador: {
-          numeroPlanilla: '6001194878',
-          valorPagado: '541800'
-        },
-        status: 'Pendiente'
-      },
-      {
-        contratista: savedContratistas[1]._id, // Monica
+        contratista: monica._id,
         supervisor: supervisor._id,
         operadorPago: 'Compensar MiPlanilla',
         periodoPago: { mes: 'enero', anio: '2026' },
         datosOperador: {
           numeroPlanilla: '50885037',
-          valorPagado: '590900'
+          valorPagado: '590900',
+          fechaPago: '2026-02-13' // 13 de Febrero
         },
         status: 'Pendiente'
       },
       {
-        contratista: savedContratistas[2]._id, // Luis
+        contratista: miguel._id,
         supervisor: supervisor._id,
-        operadorPago: 'SOI',
+        operadorPago: 'Aportes en Línea',
         periodoPago: { mes: 'enero', anio: '2026' },
         datosOperador: {
-          numeroPlanilla: '6001245996',
-          valorPagado: '552800'
+          numeroPlanilla: '0', 
+          valorPagado: '0',
+          fechaPago: '2026-01-01'
         },
         status: 'Pendiente'
       }
     ];
 
-    for (const data of reportesData) {
-      const r = await Reporte.findOne({ 
-        contratista: data.contratista, 
-        'periodoPago.mes': data.periodoPago.mes,
-        'periodoPago.anio': data.periodoPago.anio 
-      });
-      if (!r) {
-        await Reporte.create(data);
-        console.log(`✅ Reporte para contratista ID ${data.contratista} creado`);
-      }
-    }
-
-    console.log('🚀 Seeding completado con éxito');
+    await Reporte.insertMany(reportesData);
+    console.log(`✅ Datos preparados: Monica (Compensar - 13 Feb) y Miguel (Aportes - Sanitas).`);
     process.exit(0);
   } catch (error) {
     console.error('❌ Error en seeding:', error);
