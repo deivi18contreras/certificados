@@ -59,13 +59,25 @@ export const scrapeAsopagos = async (page, { contratista, periodoPago, datosOper
     console.log(`📄 [Asopagos] Certificado descargado en: ${pdfPath}`);
     return pdfPath;
   } else {
-    // Si falla o no descarga, tomar captura
-    console.log('⚠️ [Asopagos] No se detectó descarga. Tomando captura de la pantalla...');
-    const pngPath = finalPath + '.png';
-    await page.waitForTimeout(5000); // Dar algo de tiempo para renderizado
-    await page.screenshot({ path: pngPath, fullPage: true });
-    console.log(`📸 [Asopagos] Captura guardada en: ${pngPath}`);
-    return pngPath;
+    // Si falla o no descarga, intentar leer el error de la página
+    const errorFromPage = await page.evaluate(() => {
+      // Usualmente los errores de Asopagos se insertan en divs de mensaje o en texto plano sin estilo
+      // Podemos buscar textos comunes en el body
+      const bodyText = document.body.innerText || '';
+      if (bodyText.includes('El empleado seleccionado no existe')) {
+        return 'El empleado seleccionado no existe o no se encuentra presente en una planilla paga.';
+      } else if (bodyText.includes('Captcha')) {
+        return 'Captcha incorrecto o expirado.';
+      }
+      return null;
+    }).catch(() => null);
+
+    if (errorFromPage) {
+      throw new Error(`Mensaje del portal: ${errorFromPage}`);
+    }
+
+    console.log(`⚠️ [Asopagos] No se detectó descarga ni error específico (${err.message}).`);
+    throw new Error('Asopagos no retornó descarga y produjo un error inesperado.');
   }
 };
 

@@ -191,9 +191,21 @@ export const scrapeAportes = async (page, { contratista, periodoPago, datosOpera
     return pngPath;
 
   } catch (err) {
-    console.log('⚠️ [Aportes] No se detectó popup automático o hubo un error. Capturando página principal...');
-    const pngPath = path.join(downloadPath, `${finalFilename}_error.png`);
-    await page.screenshot({ path: pngPath, fullPage: true });
-    return pngPath;
+    // Extraer posible error del DOM (lblError, span rojo, alert)
+    const errorFromPage = await page.evaluate(() => {
+      // Buscar elementos típicos de error devueltos en Aportes
+      const errorElements = Array.from(document.querySelectorAll('span[id*="lblError"], .alert-danger, .msg-error, .text-danger, span[style*="color:Red"]'));
+      for (const el of errorElements) {
+        if (el && el.innerText.trim() !== '') return el.innerText.trim();
+      }
+      return null;
+    }).catch(() => null);
+
+    if (errorFromPage) {
+      throw new Error(`Mensaje de la página: ${errorFromPage}`);
+    }
+
+    console.log(`⚠️ [Aportes] Error genérico detectado (${err.message}).`);
+    throw new Error(`Fallo en Aportes (Captcha/Popup): ${err.message}`);
   }
 };
