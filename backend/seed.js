@@ -9,8 +9,8 @@ dotenv.config();
 
 const supervisorsData = [
   {
-    nombre: 'Ana García',
-    email: 'ana.garcia@sena.edu.co',
+    nombre: 'Jesus Acero',
+    email: 'jesus.acero.14.17@gmail.com',
     password: 'password123',
     documento: '10203040'
   },

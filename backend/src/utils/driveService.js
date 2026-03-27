@@ -6,14 +6,12 @@ const meses = [
   'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
 ];
 
-const getPreviousMonth = (mes, anio) => {
-  const index = meses.indexOf(mes.toLowerCase());
-  if (index === -1) return { mes, anio }; // Por si acaso
-  
-  if (index === 0) {
-    return { mes: meses[11], anio: (parseInt(anio) - 1).toString() };
-  }
-  return { mes: meses[index - 1], anio };
+const getCurrentMonthYear = () => {
+  const currentDate = new Date();
+  return {
+    mes: meses[currentDate.getMonth()],
+    anio: currentDate.getFullYear().toString()
+  };
 };
 
 const getOrCreateFolder = async (drive, folderName, parentId = null) => {
@@ -48,13 +46,12 @@ export const uploadToDrive = async (filePath, { supervisor, contratista, operado
     oauth2Client.setCredentials(supervisor.googleTokens);
     const drive = google.drive({ version: 'v3', auth: oauth2Client });
 
-    // Ajuste de mes atrasado según requerimiento: "si es marzo va en la carpeta de febrero"
-    const { mes: mesCarpeta, anio: anioCarpeta } = getPreviousMonth(periodoPago.mes, periodoPago.anio);
+    // Ajuste: Guardar siempre en el mes actual (Real)
+    const { mes: mesCarpeta, anio: anioCarpeta } = getCurrentMonthYear();
 
     const rootFolderId = await getOrCreateFolder(drive, 'Reporte Entidades');
     const yearFolderId = await getOrCreateFolder(drive, anioCarpeta, rootFolderId);
-    const entityFolderId = await getOrCreateFolder(drive, operadorPago, yearFolderId);
-    const monthFolderId = await getOrCreateFolder(drive, mesCarpeta, entityFolderId);
+    const monthFolderId = await getOrCreateFolder(drive, mesCarpeta, yearFolderId);
 
     const fileName = `${contratista.nombres} ${contratista.apellidos}`.trim();
     const fileMetadata = { name: `${fileName}.pdf`, parents: [monthFolderId] };
@@ -63,9 +60,9 @@ export const uploadToDrive = async (filePath, { supervisor, contratista, operado
       body: fs.createReadStream(filePath),
     };
 
-    const file = await drive.files.create({ resource: fileMetadata, media: media, fields: 'id' });
+    const file = await drive.files.create({ resource: fileMetadata, media: media, fields: 'id, webViewLink' });
     console.log(`✅ Archivo ${fileName} subido con éxito a Drive en carpeta ${mesCarpeta} ${anioCarpeta}`);
-    return file.data.id;
+    return file.data.webViewLink;
   } catch (error) {
     console.error('❌ Error en uploadToDrive:', error.message);
     throw error;

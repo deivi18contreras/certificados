@@ -69,7 +69,8 @@ export const loginSupervisor = async (req, res, next) => {
         data: { 
           id: supervisor._id, 
           nombre: supervisor.nombre, 
-          email: supervisor.email 
+          email: supervisor.email,
+          hasDriveAccess: !!supervisor.googleTokens
         }
       });
     } else {

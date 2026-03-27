@@ -1,9 +1,11 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { getReportes } from '@/services/apiReporte'
+import { getSupervisorDashboard } from '@/services/apiReporte'
+import { useAuthStore } from '@/stores/auth'
 import { useQuasar } from 'quasar'
 
 const $q = useQuasar()
+const authStore = useAuthStore()
 const reportes = ref([])
 const loading = ref(false)
 
@@ -25,17 +27,14 @@ const years = Array.from({ length: 5 }, (_, i) => (currentYear - i).toString())
 const columns = [
   { name: 'contratista', label: 'Contratista' },
   { name: 'entidad', label: 'Operador' },
-  { name: 'planilla', label: 'Planilla' },
-  { name: 'mes', label: 'Mes' },
-  { name: 'valor', label: 'Monto' },
-  { name: 'fecha', label: 'Fecha Pago' },
+  { name: 'mesRegistro', label: 'Mes de Registro' },
   { name: 'acciones', label: 'Acciones' }
 ]
 
 const loadReportes = async () => {
   loading.value = true
   try {
-    const res = await getReportes()
+    const res = await getSupervisorDashboard(authStore.user.id)
     if (res.success) {
       reportes.value = res.data
     }
@@ -55,11 +54,17 @@ const filteredReportes = computed(() => {
     const operador = r.operadorPago?.toLowerCase() || ''
     const s = filters.value.search.toLowerCase()
     
+    
     const matchSearch = !s || fullname.includes(s) || cedula.includes(s) || operador.includes(s)
-    const matchMes = !filters.value.mes || r.periodoPago?.mes === filters.value.mes
+    
+    // Obtener el mes de registro
+    const dateOfCreation = new Date(r.createdAt)
+    const monthOfCreation = dateOfCreation.toLocaleDateString('es-ES', { month: 'long' })
+    const matchMes = !filters.value.mes || monthOfCreation.toLowerCase() === filters.value.mes.toLowerCase()
     
     // Filtrar por año solamente
-    const matchAnio = !filters.value.anio || (r.periodoPago?.anio && r.periodoPago.anio === filters.value.anio)
+    const yearOfCreation = dateOfCreation.getFullYear().toString()
+    const matchAnio = !filters.value.anio || yearOfCreation === filters.value.anio
 
     return matchSearch && matchMes && matchAnio
   })
@@ -146,7 +151,7 @@ onMounted(() => {
           </thead>
           <tbody>
             <tr v-if="loading">
-              <td colspan="7" class="text-center padding-xl">
+              <td colspan="4" class="text-center padding-xl">
                 <div class="spinner-small q-mx-auto"></div>
               </td>
             </tr>
@@ -161,14 +166,24 @@ onMounted(() => {
                 </div>
               </td>
               <td><span class="badge badge-secondary">{{ row.operadorPago }}</span></td>
-              <td>#{{ row.datosOperador?.numeroPlanilla || 'N/A' }}</td>
-              <td class="text-capitalize">{{ row.periodoPago?.mes }}</td>
-              <td class="text-bold accent-green">{{ formatCurrency(row.datosOperador?.valorPagado) }}</td>
-              <td class="text-faded">{{ formatDate(row.datosOperador?.fechaPago) }}</td>
+              <td class="text-capitalize text-bold" style="color: var(--sena-green);">{{ new Date(row.createdAt).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }) }}</td>
               <td>
-                <div class="actions-group">
-                  <button class="row-btn" @click="downloadReport(row)"><i class="material-icons">visibility</i></button>
-                  <button class="row-btn" @click="downloadReport(row)"><i class="material-icons">download</i></button>
+                <div class="actions-group" style="align-items: center;">
+                  <a v-if="row.archivoUrl" :href="row.archivoUrl" target="_blank" class="row-btn" title="Ver en Drive">
+                    <i class="material-icons" style="color: var(--sena-purple)">visibility</i>
+                  </a>
+                  <a v-if="row.archivoUrl" :href="row.archivoUrl" target="_blank" class="row-btn" title="Abrir en Drive">
+                    <i class="material-icons" style="color: var(--sena-green)">open_in_new</i>
+                  </a>
+                  <span v-if="!row.archivoUrl && row.status === 'Procesando'" class="text-faded" style="font-size: 0.8rem; display: flex; align-items: center; gap: 4px;">
+                    <i class="material-icons spin" style="font-size: 14px;">sync</i> Procesando
+                  </span>
+                  <span v-if="!row.archivoUrl && row.status === 'Pendiente'" class="text-faded" style="font-size: 0.8rem;">
+                    Pendiente
+                  </span>
+                  <span v-if="!row.archivoUrl && row.status === 'Error'" style="color: #B42318; font-size: 0.8rem; font-weight: bold;">
+                    Error
+                  </span>
                 </div>
               </td>
             </tr>

@@ -1,14 +1,29 @@
 <script setup>
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
+import { ref, onMounted, onUnmounted } from 'vue'
 
 const authStore = useAuthStore()
 const router = useRouter()
+const showDropdown = ref(false)
 
 const handleLogout = () => {
+  showDropdown.value = false
   authStore.logout()
   router.push({ name: 'home' })
 }
+
+const toggleDropdown = (e) => {
+  e.stopPropagation()
+  showDropdown.value = !showDropdown.value
+}
+
+const closeDropdown = () => {
+  showDropdown.value = false
+}
+
+onMounted(() => document.addEventListener('click', closeDropdown))
+onUnmounted(() => document.removeEventListener('click', closeDropdown))
 </script>
 
 <template>
@@ -26,17 +41,28 @@ const handleLogout = () => {
       </div>
       
       <div class="nav-links">
-        <router-link :to="{ name: 'home' }" class="nav-item">
+        <router-link v-if="['login', 'dashboard'].includes($route.name)" :to="{ name: 'home' }" class="nav-item">
           <i class="material-icons">home</i>
           <span>Inicio</span>
         </router-link>
         
         <template v-if="authStore.isAuthenticated">
-          <div class="user-control">
-            <button class="logout-btn" @click="handleLogout">
-              <i class="material-icons">logout</i>
-              <span>Cerrar Sesión</span>
-            </button>
+          <div class="user-profile-section">
+            <div class="user-info">
+              <span class="user-name">{{ authStore.user?.nombre }}</span>
+              <span class="user-email">{{ authStore.user?.email }}</span>
+            </div>
+            <div class="avatar-container" @click="toggleDropdown">
+              <div class="avatar">
+                {{ authStore.user?.nombre?.charAt(0)?.toUpperCase() || 'U' }}
+              </div>
+              <div v-show="showDropdown" class="dropdown-menu" @click.stop>
+                <button class="logout-menu-btn" @click="handleLogout">
+                  <i class="material-icons">logout</i>
+                  <span>Cerrar Sesión</span>
+                </button>
+              </div>
+            </div>
           </div>
         </template>
       </div>
@@ -120,30 +146,84 @@ const handleLogout = () => {
   background: rgba(255, 255, 255, 0.12);
 }
 
-.user-control {
+.user-profile-section {
   display: flex;
   align-items: center;
+  gap: 12px;
 }
 
-.logout-btn {
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+.user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.user-name {
+  font-weight: 700;
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+
+.user-email {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.2;
+}
+
+.avatar-container {
+  position: relative;
+  cursor: pointer;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--sena-green);
   color: white;
-  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transition: transform 0.2s;
+}
+
+.avatar:hover {
+  transform: scale(1.05);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  background: white;
   border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  padding: 8px;
+  min-width: 180px;
+  z-index: 1000;
+}
+
+.logout-menu-btn {
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.9rem;
+  padding: 10px 12px;
+  background: white;
+  border: none;
+  color: #B42318;
   font-weight: 600;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: background 0.2s;
+  font-size: 0.95rem;
 }
 
-.logout-btn:hover {
-  background: #B42318;
-  border-color: #B42318;
-  box-shadow: 0 2px 8px rgba(180, 35, 24, 0.3);
+.logout-menu-btn:hover {
+  background: #FEE4E2;
 }
 
 .top-accent-bar {

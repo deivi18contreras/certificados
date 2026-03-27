@@ -29,7 +29,7 @@ router.post(
   '/',
   [
     check('nombre', 'El nombre es obligatorio').notEmpty().trim(),
-    check('email', 'Ingrese un correo electrónico válido').isEmail().normalizeEmail(),
+    check('email', 'Ingrese un correo electrónico válido').isEmail(),
     check('password', 'La contraseña debe tener al menos 6 caracteres').isLength({ min: 6 }),
     check('documento', 'El número de documento debe ser numérico').isNumeric(),
     validateRequest,
@@ -40,7 +40,7 @@ router.post(
 router.post(
   '/login',
   [
-    check('email', 'Ingrese un correo electrónico válido').isEmail().normalizeEmail(),
+    check('email', 'Ingrese un correo electrónico válido').isEmail(),
     check('password', 'La contraseña es obligatoria').notEmpty(),
     validateRequest,
   ],

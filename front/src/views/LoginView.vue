@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { loginSupervisor } from '@/services/apiSupervisor'
 import { useQuasar } from 'quasar'
+import { onMounted } from 'vue'
 
 const $q = useQuasar()
 const router = useRouter()
@@ -11,7 +12,19 @@ const authStore = useAuthStore()
 
 const email = ref('')
 const password = ref('')
+const showPassword = ref(false)
+const rememberMe = ref(false)
 const loading = ref(false)
+
+onMounted(() => {
+  const savedEmail = localStorage.getItem('certisena_email')
+  const savedPass = localStorage.getItem('certisena_password')
+  if (savedEmail && savedPass) {
+    email.value = savedEmail
+    password.value = savedPass
+    rememberMe.value = true
+  }
+})
 
 const handleLogin = async () => {
   if (!email.value || !password.value) {
@@ -23,9 +36,21 @@ const handleLogin = async () => {
   try {
     const response = await loginSupervisor({ email: email.value, password: password.value })
     if (response.success) {
+      if (rememberMe.value) {
+        localStorage.setItem('certisena_email', email.value)
+        localStorage.setItem('certisena_password', password.value)
+      } else {
+        localStorage.removeItem('certisena_email')
+        localStorage.removeItem('certisena_password')
+      }
+
       authStore.login(response.data, response.token)
       $q.notify({ type: 'positive', message: 'Bienvenido ' + response.data.nombre })
-      router.push({ name: 'permisos' })
+      if (response.data.hasDriveAccess) {
+        router.push({ name: 'dashboard' })
+      } else {
+        router.push({ name: 'permisos' })
+      }
     }
   } catch (error) {
     $q.notify({ type: 'negative', message: 'Credenciales inválidas o error de conexión' })
@@ -59,18 +84,30 @@ const handleLogin = async () => {
         
         <div class="form-group">
           <label>Contraseña</label>
-          <input 
-            v-model="password" 
-            type="password" 
-            class="form-input" 
-            placeholder="••••••••"
-            required
-          />
+          <div class="password-wrapper">
+            <input 
+              v-model="password" 
+              :type="showPassword ? 'text' : 'password'" 
+              class="form-input" 
+              placeholder="••••••••"
+              required
+            />
+            <button type="button" class="btn-toggle-pass" @click="showPassword = !showPassword">
+              <i class="material-icons">{{ showPassword ? 'visibility_off' : 'visibility' }}</i>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group remember-group">
+          <label class="checkbox-label">
+            <input type="checkbox" v-model="rememberMe" />
+            <span>Recordar mis credenciales</span>
+          </label>
         </div>
 
         <button 
           type="submit" 
-          class="btn btn-primary full-width" 
+          class="btn btn-primary full-width"  
           :disabled="loading"
         >
           <span v-if="loading">Validando...</span>
@@ -126,5 +163,54 @@ const handleLogin = async () => {
 
 .full-width {
   width: 100%;
+}
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper .form-input {
+  width: 100%;
+  padding-right: 40px;
+}
+
+.btn-toggle-pass {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.btn-toggle-pass:hover {
+  color: var(--sena-purple);
+}
+
+.remember-group {
+  margin-top: -5px;
+  margin-bottom: 10px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #555;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--sena-purple);
+  cursor: pointer;
 }
 </style>

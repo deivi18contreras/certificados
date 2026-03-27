@@ -1,83 +1,41 @@
- He analizado el código y los tests, y aquí tienes
-  el resumen del estado actual de los scrapers:
+# Contexto del Proyecto CertiSENA
 
-  Resumen del Código y Estado de los Operadores
+## Resumen del Backend
+- **Framework**: Express.js (Node.js).
+- **Base de Datos**: MongoDB (Mongoose).
+- **Modelos Principales**:
+  - `Supervisor`: Gestión de usuarios administrativos. Maneja autenticación (JWT, contraseñas hasheadas) y almacena credenciales de Google Drive (Tokens OAuth2).
+  - `Contratista`: Almacena información de los trabajadores (documento, expedición, EPS).
+  - `Reporte`: Historial y estados de las planillas solicitadas (Pendiente, Procesando, Completado, Error). Cuenta con intentos de reintento y almacena los enlaces web nativos de Google Drive (`webViewLink`).
+- **Motores y Servicios Core**:
+  - **Scrapers (Playwright)**: Lógica automatizada para extraer certificados de diversos portales Pila (SOI, Compensar, Aportes en Línea, Asopagos, Enlace-APB).
+  - **Resolución de Captchas**: Integración con la API de `2Captcha`.
+  - **Google Drive API**: Creación estructurada de carpetas dinámicas (`Reporte Entidades -> Año -> Mes`) y subida inteligente de los PDF interceptados.
+  - **Cron Jobs (`node-cron`)**: Sistema en segundo plano encargado de barrer reportes defectuosos ("Error") o encolados y re-procesarlos.
 
+## Resumen del Frontend
+- **Ecosistema**: Vue 3 (Composition API), Vite, Pinia (con persistencia local) y Quasar Framework.
+- **Sistema de Ruteo y Vistas**:
+  - `HomeView`: Pantalla principal pública.
+  - `LoginView`: Login de supervisores integrado con persistencia de credenciales ("Recordarme") y toggle visual de contraseña.
+  - `DriveAuthView`: Pantalla interceptora que requiere al supervisor enrolar su cuenta de Google si aún no lo ha hecho.
+  - `DashboardView`: Tabla central de gestión filtrada exclusivamente para los reportes del supervisor activo. Incluye filtros de búsqueda por Mes o Año de registro, y botones de redirección automática hacia el visor de Drive.
+- **UI/UX**: Estilos customizados con una estética moderna en tonos púrpuras y verdes (paleta SENA), menús de perfil dinámicos y feedback visual de estados de carga (`spinner`).
 
-  Actualmente, el sistema está utilizando
-  Playwright con el plugin de Stealth para realizar
-  el scraping de los operadores de pago de
-  seguridad social. Se utiliza el servicio 2Captcha
-  para resolver los reCAPTCHAs de Google.
+---
 
+## 📌 Tareas Pendientes para la Próxima Sesión
 
-  1. SOI (Funciona ✅)
-   * Lógica: Navega a la página de certificados de 
-     SOI, completa los datos del aportante y       
-     cotizante, selecciona la EPS y el periodo.    
-   * Resultado: Descarga exitosamente el archivo   
-     PDF de la planilla.
-   * Estado: Totalmente operativo.
+### 1. Mejoras de Interfaz y Navegación
+- [ ] **Unificar botón de Dashboard:** Limpiar los parámetros de la URL de Drive (como `?drive=success`) al interactuar con el Dashboard o estandarizar el botón.
+- [ ] **Navegación en Formularios:** Agregar un botón visible de "Inicio" o "Volver al Dashboard" en las vistas de Registrar Contratista o Crear Reporte.
+- [ ] **Exportación Visual del Dashboard:** Implementar funcionalidad para descargar la tabla visible del Dashboard como archivo **PDF** y/o **Imagen (PNG/JPEG)**. Debe contemplar la manipulación de múltiples páginas si la grilla excede la vista actual.
 
+### 2. Estabilización y Robustez (Back-End)
+- [ ] **CRÍTICO - Manejo Exhaustivo de Errores en Scrapers:** Auditar los spiders (Playwright) para cada operador. Se requiere un manejo granular de errores (tiempos de espera, cambios de DOM, fallas de validación de datos Pila) en vez de catch generales.
+- [ ] **Revisión y Ajuste de Cron Jobs:** Validar la frecuencia, carga en memoria e intervención correcta de los Cron Jobs sobre los reportes colgados o fallidos.
 
-  2. Compensar / MiPlanilla (Funciona con captura
-  ✅📸)
-   * Lógica: Navega a la consulta de pagos de
-     MiPlanilla. Requiere datos adicionales: Número
-     de Planilla, Valor Pagado y Fecha de Pago.
-   * Resultado: Actualmente genera una captura de
-     pantalla (PNG) de la consulta exitosa en lugar
-     de un PDF descargable. Esto se debe a la
-     estructura de la página de MiPlanilla que
-     facilita la visualización pero complica la
-     descarga directa del PDF sin sesión.
-   * Estado: Operativo para validación visual.
-
-
-  3. Aportes en Línea (Implementado ✅)
-   * Lógica: Utiliza reCAPTCHA v2 y requiere la    
-     fecha de expedición del documento y la EPS del
-     contratista.
-   * Resultado: Descarga un archivo PDF.
-
-
-  4. Asopagos / Enlace-APB (En
-  desarrollo/Captura ⚠️📸)
-   * Lógica: Navega por el portal de Enlace-APB
-     hasta la sección de "Reporte de pago sin
-     valores".
-   * Resultado: Al igual que Compensar, actualmente
-     toma una captura de pantalla de verificación.
-
-
-  Arquitectura General
-   * Backend: Node.js con Express y MongoDB. Los
-     procesos de scraping se ejecutan de forma
-     asíncrona mediante scrapingService.js.
-   * Frontend: Aplicación en Vue.js con Quasar
-     Framework. Permite a los contratistas
-     registrar su planilla seleccionando el 
-     
-     operador y el periodo.
-   * Automatización: El sistema está diseñado para
-     que un Cron (ScraperCron.js) o una acción
-     directa del usuario dispare el proceso de
-     descarga y posterior subida a Google Drive
-     (driveService.js).
-
-
-  ¿Te gustaría que intente cambiar el
-  comportamiento de Compensar para que intente     
-  descargar el PDF en lugar de tomar una captura, o
-  prefieres trabajar en algún otro operador?
-
-  Correcciones Recientes (19 de Marzo, 2026)
-  ------------------------------------------
-  * Aportes en Línea (EPS Nueva): Se corrigió la selección de "Nueva EPS"
-    en el scraper. Ahora escribe "nueva" y busca específicamente el texto 
-    "NUEVA E.P.S." para evitar que seleccione erróneamente "MOVILIDAD".
-  * Frontend (Edición de EPS): Se eliminó la restricción que bloqueaba 
-    el campo de EPS, Nombres y Apellidos cuando el contratista ya existía. 
-    Ahora el usuario puede modificar estos campos si es necesario.
-  * Verificación: Se realizaron pruebas con el comando
-    `node backend/verificar-agente.js aportes`.
+### 3. Deuda Técnica y Refactorización
+- [ ] **Limpieza Profunda del Código:** 
+  - Eliminar rutas y controladores "muertos" o repetidos.
+  - Abstraer y simplificar funciones estructuralmente clonadas (DRY - Don't Repeat Yourself).
