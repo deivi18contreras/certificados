@@ -5,7 +5,7 @@ dotenv.config();
 
 const dbConnect = async () => {
   try {
-    const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/certificados';
+    const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/certificados_sena';
     await mongoose.connect(mongoUri);
     console.log('--- ✅Conexión exitosa a MongoDB ---');
   } catch (error) {

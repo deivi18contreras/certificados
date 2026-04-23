@@ -1,48 +1,37 @@
 <script setup>
 import { useRouter } from 'vue-router'
-import { useQuasar } from 'quasar'
-<<<<<<< HEAD
-import { getGoogleAuthUrl } from '@/services/apiSupervisor'
 import { useAuthStore } from '@/stores/auth'
+import { useQuasar } from 'quasar'
+import axios from '@/services/axios'
 
 const $q = useQuasar()
 const router = useRouter()
 const authStore = useAuthStore()
 
 const handleGrantPermissions = async () => {
-  if (!authStore.user?.id) {
-    $q.notify({ type: 'negative', message: 'Error: No se encontró la sesión del supervisor.' })
-    return
-  }
-
   $q.loading.show({ message: 'Conectando con Google API...' })
   
   try {
-    const res = await getGoogleAuthUrl(authStore.user.id)
-    if (res.url) {
-      window.location.href = res.url // Redirección externa a Google
+    const supervisorId = authStore.user?.id
+    if (!supervisorId) {
+      $q.notify({ type: 'negative', message: 'No se encontró el ID del supervisor' })
+      return
+    }
+
+    const { data } = await axios.get(`/supervisors/google/auth/${supervisorId}`)
+    
+    if (data.url) {
+      // Redirigir al usuario a Google para autorizar
+      window.location.href = data.url
     } else {
-      throw new Error('No se pudo obtener la URL de autenticación')
+      $q.notify({ type: 'negative', message: 'No se obtuvo URL de autorización' })
     }
   } catch (error) {
+    console.error('Error conectando con Google:', error)
+    $q.notify({ type: 'negative', message: 'Error al conectar con Google Drive. Verifique la configuración.' })
+  } finally {
     $q.loading.hide()
-    $q.notify({ type: 'negative', message: 'Error al conectar con Google: ' + error.message })
   }
-=======
-
-const $q = useQuasar()
-const router = useRouter()
-
-const handleGrantPermissions = () => {
-  $q.loading.show({ message: 'Conectando con Google API...' })
-  
-  // Simulación de autenticación con Google
-  setTimeout(() => {
-    $q.loading.hide()
-    $q.notify({ type: 'positive', message: 'Permisos concedidos exitosamente' })
-    router.push({ name: 'dashboard' })
-  }, 2000)
->>>>>>> 64a23765abc45485dc75a2b30e320819c64f389c
 }
 </script>
 

@@ -33,15 +33,9 @@ const getSupervisors = async () => {
   return data
 }
 
-const createTestSupervisor = async () => {
-  const { data } = await axios.get('/supervisors/test-create')
-  return data
-}
-
 export {
   loginSupervisor,
   getSupervisorProfile,
-  getSupervisors,
-  createTestSupervisor
+  getSupervisors
 }
->>>>>>> 64a23765abc45485dc75a2b30e320819c64f389c
+

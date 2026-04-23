@@ -77,7 +77,8 @@ export const loginSupervisor = async (req, res, next) => {
         data: { 
           id: supervisor._id, 
           nombre: supervisor.nombre, 
-          email: supervisor.email 
+          email: supervisor.email,
+          hasDriveAccess: !!supervisor.googleTokens
         }
 >>>>>>> 64a23765abc45485dc75a2b30e320819c64f389c
       });

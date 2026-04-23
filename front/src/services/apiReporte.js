@@ -23,6 +23,11 @@ const getReportes = async () => {
   return data
 }
 
+const getSupervisorDashboard = async (supervisorId) => {
+  const { data } = await axios.get(`/reportes/dashboard/${supervisorId}`)
+  return data
+}
+
 const registerReporte = async (reporteData) => {
   const { data } = await axios.post('/reportes', reporteData)
   return data
@@ -30,6 +35,7 @@ const registerReporte = async (reporteData) => {
 
 export {
   getReportes,
+  getSupervisorDashboard,
   registerReporte
 }
 >>>>>>> 64a23765abc45485dc75a2b30e320819c64f389c

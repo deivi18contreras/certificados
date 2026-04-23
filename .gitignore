@@ -1,0 +1,8 @@
+node_modules/
+.env
+backend/src/descargas/
+*.pdf
+*.png
+backend/temp_debug_aportes.js
+.gemini/
+.agents/
